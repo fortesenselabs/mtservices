@@ -1,14 +1,4 @@
-# pyzmq
-# flask
-# flask-socketio
-# flask-restful
-python-dotenv
-# numpy==1.14.3
-# pandas
-# ejtraderMT
-argparse
-eventlet
-# https://stackoverflow.com/questions/60991897/websocket-transport-not-available-install-eventlet-or-gevent-and-gevent-websock
-
-fastapi>=0.89.0,<0.90.0
-uvicorn[standard]>=0.20.0,<0.21.0
+numpy>=1.23.*
+pandas>=1.4.*
+MetaTrader5
+git+https://github.com/FortesenseLabs/pymt5adapter.git
