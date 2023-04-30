@@ -1,0 +1,18 @@
+{
+  "config_file_modifier": "",
+
+  "metatrader_terminal_path": "",
+
+  "api_key": "c5VPgqLxHH6018cWTTnkChBHdT8jiQat58GSoLlrcbHcgyAcdgG6m99KmDxas8vg",
+  "api_secret": "pQKrpgXoERTmT8tcOD3znxmW8fdRI92fOX4EO7QOk7NLZBUu3q7dx07n7iTkvn5k",
+
+  "telegram_bot_token": "<token>",
+  "telegram_chat_id": "<chat-id-to-publish-messages>",
+
+  "telegram_phone_number": "Your-Telegram-Phone-Number",
+  "telegram_username": "Your-Telegram-Username",
+
+  "data_folder": "data",
+
+  "symbols": ["BTCUSDT", "ETHUSDT"]
+}

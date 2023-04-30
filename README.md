@@ -1,3 +1,3 @@
-# Wise Finance Metatrader Services
+# Wise Finance Metatrader Interface
 
-Services used to run the Metatrader application are kept here
+Metatrader application interface

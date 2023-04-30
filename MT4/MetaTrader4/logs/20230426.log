@@ -1,0 +1,10 @@
+0	12:54:37.172	Migration: data to 'C:\Program Files\MetaTrader 4' migration started
+0	12:54:37.173	Migration: data migration finished, no virtual folder
+0	12:54:37.174	LiveUpdate: update C:\Program Files\MetaTrader 4\MQL4 folder started
+0	12:54:37.253	LiveUpdate: update C:\Program Files\MetaTrader 4\MQL4 folder finished
+0	12:54:37.769	MetaTrader 4 build 1380 started (MetaQuotes Software Corp.)
+0	12:54:37.770	Microsoft Windows 10 x86, IE 11, 4 x  Intel Core i3-3110M  @ 2.40GHz, Memory: 7958 / 11861 Mb, Disk: 27 / 300 Gb, GMT+1
+0	12:54:37.770	Data Folder: C:\Program Files\MetaTrader 4
+0	12:54:38.681	Sources recompilation started
+0	12:54:53.050	Sources recompilation finished (28 compiled in 14370 msec)
+0	12:55:09.393	MetaTrader 4 build 1380 stopped
