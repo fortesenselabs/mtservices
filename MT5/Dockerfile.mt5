@@ -100,7 +100,7 @@ RUN apk update && apk add --no-cache samba-winbind wine && ln -s /usr/bin/wine64
 
 WORKDIR /$HOME/
 
-COPY webservice /root/webservice
+COPY ../webservice/server /root/webservice/server
 RUN pip install --upgrade pip
 RUN pip install -r /root/webservice/requirements.txt
 
