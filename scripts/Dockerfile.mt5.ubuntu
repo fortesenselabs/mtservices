@@ -1,0 +1,112 @@
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends wget make gcc git gnupg2 && \
+    apt-get clean
+
+USER root
+# ENV WINEPREFIX=/root/.wine
+ENV WINEPREFIX=/root/.mt5
+ENV WINEARCH=win64
+ENV DISPLAY :1
+ENV USER=root
+ENV PASSWORD=root
+
+# WORKDIR $HOME/
+# COPY mt5ubuntu.sh /root/mt5ubuntu.sh
+# RUN bash /root/mt5ubuntu.sh
+# 
+# Copyright 2022, MetaQuotes Ltd.
+
+# MetaTrader download url
+ENV URL="https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe"
+
+# Specify the Python version to install
+ENV PYTHON_VERSION="3.11.0"
+# amd64 for 64bit applications
+ENV PYTHON_APP_TYPE="amd64" 
+ENV FILENAME_DIV="-"
+
+# Wine version to install: stable or devel
+ENV WINE_VERSION="stable"
+
+# Get Ubuntu version and trim to major only
+# RUN OS_VER=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d "=" -f2 | cut -d "." -f1)
+# ENV OS_VER=$(cat /tmp/os_ver)
+
+
+# Prepare: switch to 32 bit and add Wine key
+# RUN dpkg --add-architecture i386
+# RUN wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/winehq.key
+# RUN mv winehq.key /usr/share/keyrings/winehq-archive.key
+
+# Prepare: switch to 32 bit and add Wine key
+RUN dpkg --add-architecture i38
+RUN mkdir -pm755 /etc/apt/keyrings
+RUN wget --no-check-certificate -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+# RUN apt update
+# 
+RUN wget --no-check-certificate -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources
+# sudo wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/ubuntu/dists/lunar/winehq-lunar.sources
+# RUN dpkg --add-architecture i386 && \
+#     wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/winehq.key && \
+#     mv winehq.key /usr/share/keyrings/winehq-archive.key && \
+#     apt-get update && \
+#     if (( $OS_VER >= 22)); then \
+#     wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq.list; \
+#     elif (( $OS_VER < 22 )) && (( $OS_VER >= 21 )); then \
+#     wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/ubuntu/dists/impish/winehq.list; \
+#     elif (( $OS_VER < 21 )) && (( $OS_VER >=20 )); then \
+#     wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/ubuntu/dists/focal/winehq.list; \
+#     elif (( $OS_VER < 20 )); then \
+#     wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/ubuntu/dists/bionic/winehq.list; \
+#     fi && \
+#     mv winehq.list /etc/apt/sources.list.d/winehq.list && \
+#     apt-get update && \
+#     wget --no-check-certificate -nc https://dl.winehq.org/wine-builds/winehq.key && \
+#     apt-key add winehq.key && \
+#     apt-get install -y --no-install-recommends winehq-${WINE_VERSION} && \
+#     apt-get clean
+
+
+
+# Add Wine repository key
+# RUN wget -nc https://dl.winehq.org/wine-builds/winehq.key
+# RUN apt-key add winehq.key
+
+# Update package and install Wine
+RUN apt update
+# RUN apt upgrade -y
+RUN apt install --install-recommends winehq-${WINE_VERSION} -y
+
+# Download MetaTrader
+RUN wget $URL
+
+# Set environment to Windows 10
+RUN WINEPREFIX=/root/.mt5 winecfg -v=win10
+# Start MetaTrader installer
+RUN WINEPREFIX=/root/.mt5 wine mt5setup.exe /quiet
+
+# Install python
+
+# USER_DIR=/root/.mt5/drive_c/
+
+# Navigate to the folder where you want to install Python
+# RUN cd ${USER_DIR}
+# RUN cd /root/
+
+# Download the Python installer for Windows
+RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/python${FILENAME_DIV}${PYTHON_VERSION}${FILENAME_DIV}${PYTHON_APP_TYPE}.exe
+
+
+# Install Python using Wine
+RUN WINEPREFIX=/root/.mt5 wine python${FILENAME_DIV}${PYTHON_VERSION}${FILENAME_DIV}${PYTHON_APP_TYPE}.exe /quiet InstallAllUsers=1 PrependPath=1
+
+# Verify that Python is installed
+RUN WINEPREFIX=/root/.mt5 wine cmd /c "python --version"
+
+# https://hub.docker.com/r/tobix/pywine
+# https://hub.docker.com/r/engineervix/pyinstaller-windows
+# https://wiki.winehq.org/Ubuntu
+# https://stackoverflow.com/questions/64173592/how-can-i-correctly-install-run-pip-in-a-wine-emulated-python-version-inside

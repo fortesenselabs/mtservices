@@ -1,0 +1,20 @@
+FROM ubuntu:20.04 AS xdummy-builder
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 
+
+RUN apt-get update && apt-get install -y make gcc libfreetype6-dev \
+    libfontconfig1-dev musl-dev xorg-dev libxft-dev libxext-dev \
+    libavahi-client-dev libssl-dev libvncserver-dev libx11-dev \
+    libxdamage-dev libxext-dev libxfixes-dev libxi-dev libxinerama-dev \
+    libxrandr-dev libxtst-dev
+
+RUN apt-get install -y x11vnc
+
+# RUN Xorg :0 -noreset -terminate >/dev/null 2>&1 & sleep 2 
+# ENV DISPLAY=:0
+# RUN x11vnc -display :0 -bg -nopw -listen localhost -xkb -ncache_cr -forever
+# RUN x11vnc -xkb -noxrecord -noxfixes -noxdamage -display :0 -repeat -wait 5 -ncache_cr -forever
+
+CMD ["bash"]

@@ -1,0 +1,46 @@
+# Copyright 2023, Fortesense Labs.
+
+FROM ubuntu:20.04
+
+# Install X server and Openbox window manager
+RUN apt-get update && apt-get install -y \
+    xorg \
+    openbox \
+    obconf \
+    xfce4-terminal \
+    sudo \
+    curl \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a new user with sudo privileges
+RUN useradd -m -s /bin/bash user \
+    && echo "user ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/user \
+    && chmod 0440 /etc/sudoers.d/user \
+    && chown user:user /home/user
+
+# Set the default user
+USER user
+
+# Set the default working directory
+WORKDIR /home/user
+
+# Copy the script and set permissions
+COPY mt5ubuntu_openbox.sh /home/user/
+RUN chmod +x /home/user/mt5ubuntu_openbox.sh
+
+# Set the environment variables
+ENV DISPLAY=:0
+ENV USER=user
+ENV PASSWORD=user
+ENV URL="https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe"
+ENV WINEPREFIX=/home/user/.mt5
+ENV WINEARCH=win64
+ENV PYTHON_VERSION="3.11.0"
+ENV PYTHON_APP_TYPE="amd64" 
+ENV FILENAME_DIV="-"
+ENV WINE_VERSION="stable"
+
+# Start Openbox
+CMD [ "/usr/bin/openbox-session" ]
