@@ -1,6 +1,6 @@
 # Publisher
 
-FROM alpine:3.14 AS st-builder
+FROM alpine:3.15 AS st-builder
 
 RUN apk add --no-cache make gcc git freetype-dev \
     fontconfig-dev musl-dev xproto libx11-dev \
@@ -11,7 +11,7 @@ RUN make
 
 # ----------------------------------------------------------------------------
 
-FROM alpine:3.14 AS xdummy-builder
+FROM alpine:3.15 AS xdummy-builder
 
 RUN apk add --no-cache make gcc freetype-dev \
     fontconfig-dev musl-dev xproto libx11-dev \
@@ -23,11 +23,12 @@ RUN Xdummy -install
 # ----------------------------------------------------------------------------
 
 FROM ejtrader/pyzmq:dev
+# FROM alpine:3.15
 
 USER root
 ENV WINEPREFIX=/root/.wine
 ENV WINEARCH=win64
-ENV DISPLAY :0
+ENV DISPLAY=:0
 ENV USER=root
 ENV PASSWORD=root
 
@@ -64,6 +65,7 @@ COPY assets/openbox/mayday/mayday-plane /usr/share/themes/mayday-plane
 COPY assets/openbox/mayday/thesis /usr/share/themes/thesis
 COPY assets/openbox/rc.xml /etc/xdg/openbox/rc.xml
 COPY assets/openbox/menu.xml /etc/xdg/openbox/menu.xml
+
 COPY Metatrader5 /root/Metatrader5
 # COPY MTWebServer /root/MTWebServer
 
@@ -95,14 +97,31 @@ COPY assets/xinit/xinitrc.d /etc/X11/xinit/xinitrc.d
 COPY assets/x11vnc-session.sh /root/x11vnc-session.sh
 COPY assets/start.sh /root/start.sh
 
-
 RUN apk update && apk add --no-cache samba-winbind wine && ln -s /usr/bin/wine64 /usr/bin/wine
 
 WORKDIR /$HOME/
 
-COPY ../webservice/server /root/webservice/server
-RUN pip install --upgrade pip
-RUN pip install -r /root/webservice/requirements.txt
+RUN WINEPREFIX=${WINEPREFIX} winecfg -v=win10
+
+COPY webservice/server /root/webservice/server
+# RUN pip install --upgrade pip
+
+# Install Python for wine
+# Specify the Python version to install
+# ENV PYTHON_VERSION="3.11.0" 
+#amd64 for 64bit applications
+# ENV PYTHON_APP_TYPE="amd64" 
+# ENV FILENAME_DIV="-"
+# ENV WINEDEBUG=warn+all
+
+# Download the Python installer for Windows
+# RUN wget https://www.python.org/ftp/python/${PYTHON_VERSION}/python${FILENAME_DIV}${PYTHON_VERSION}${FILENAME_DIV}${PYTHON_APP_TYPE}.exe
+
+# Install Python using Wine
+# RUN /usr/bin/wine python${FILENAME_DIV}${PYTHON_VERSION}${FILENAME_DIV}${PYTHON_APP_TYPE}.exe /quiet InstallAllUsers=1 PrependPath=1
+# RUN rm https://www.python.org/ftp/python/${PYTHON_VERSION}/python${FILENAME_DIV}${PYTHON_VERSION}${FILENAME_DIV}${PYTHON_APP_TYPE}.exe
+
+RUN /usr/bin/wine cmd /c "pip install -r /root/webservice/server/requirements.txt" 
 
 EXPOSE 5900 8000
 

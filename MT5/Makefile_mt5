@@ -1,5 +1,5 @@
 build:
-	docker build -t mt5 -f ./MT5/Dockerfile.mt5 .
+	docker build -t mt5 -f ./Dockerfile.mt5.pywindows .
 
 run: build
 	docker run --rm -d -p 5900:5900 -p 8000:8000 --name mt5 -v mt5:/data mt5
