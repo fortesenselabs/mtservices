@@ -1,0 +1,8 @@
+#
+logs/*
+
+#
+src/*application*
+
+#
+*.log

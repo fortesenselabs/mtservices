@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  app:
+    container_name: mt5
+    image: ./Dockerfile.mt5
+    restart: unless-stopped
+    ports:
+      - '5900:5900'
+      - '8000:8000'
+    volumes:
+      - mt5:/data
+
+volumes:
+  mt5: {}
