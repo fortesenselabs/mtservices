@@ -1,0 +1,69 @@
+# FROM ubuntu:20.04
+FROM engineervix/pyinstaller-windows:latest
+
+USER root
+ENV DISPLAY=:0
+ENV USER=root
+ENV PASSWORD=root
+ENV DEBIAN_FRONTEND=noninteractive \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 
+
+#
+RUN apt-get update && apt-get install -y make gcc g++ git fontconfig xorg-dev libx11-dev \
+    libxft-dev libxext-dev supervisor sudo wget x11vnc xserver-xorg-video-dummy \
+    libssl-dev libcrypto++-dev openbox slim dbus-x11 \
+    && echo "$USER:$PASSWORD" | /usr/sbin/chpasswd \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY assets/xorg.conf /etc/X11/xorg.conf
+COPY assets/xorg.conf.d /etc/X11/xorg.conf.d
+
+# Configure init
+COPY assets/supervisord.conf /etc/supervisord.conf
+
+# Openbox window manager
+RUN mkdir -p /usr/share/themes
+COPY assets/openbox/mayday/mayday-arc /usr/share/themes/mayday-arc
+COPY assets/openbox/mayday/mayday-arc-dark /usr/share/themes/mayday-arc-dark
+COPY assets/openbox/mayday/mayday-grey /usr/share/themes/mayday-grey
+COPY assets/openbox/mayday/mayday-plane /usr/share/themes/mayday-plane
+COPY assets/openbox/mayday/thesis /usr/share/themes/thesis
+COPY assets/openbox/rc.xml /etc/xdg/openbox/rc.xml
+COPY assets/openbox/menu.xml /etc/xdg/openbox/menu.xml
+
+COPY Metatrader5 /root/Metatrader5
+
+# Login Manager
+COPY assets/slim/slim.conf /etc/slim.conf
+COPY assets/slim/alpinelinux /usr/share/slim/themes/alpinelinux
+
+# A decent system font
+RUN apt-get update && apt-get install -y fonts-noto \
+    && rm -rf /var/lib/apt/lists/*
+COPY assets/fonts.conf /etc/fonts/fonts.conf
+
+# st  as terminal
+RUN apt-get update && apt-get install -y libx11-dev libxft-dev libxext-dev ncurses-dev \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=st-builder /work/st /usr/bin/st
+COPY --from=st-builder /work/st.info /etc/st/st.info
+RUN tic -sx /etc/st/st.info
+
+# Some other resources
+RUN apt-get update && apt-get install -y x11-utils \
+    && rm -rf /var/lib/apt/lists/*
+COPY assets/xinit/Xresources /etc/X11/Xresources
+COPY assets/xinit/xinitrc.d /etc/X11/xinit/xinitrc.d
+
+COPY assets/x11vnc-session.sh /root/x11vnc-session.sh
+COPY assets/start.sh /root/start.sh
+
+# COPY webservice/server /root/webservice/server
+# RUN apt-get update && apt-get install -y python3 python3-pip \
+#     && rm -rf /var/lib/apt/lists/*
+# RUN pip3 install -r /root/webservice/server/requirements.txt 
+
+EXPOSE 5900 8000
+
+CMD ["/usr/bin/supervisord","-c","/etc/supervisord.conf"]
