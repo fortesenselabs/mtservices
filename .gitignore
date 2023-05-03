@@ -2,3 +2,4 @@ samples
 .vscode
 .pytest_cache
 .\...*pytest_cache
+.env
