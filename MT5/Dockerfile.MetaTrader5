@@ -8,15 +8,13 @@ RUN go mod init build && \
 
 FROM engineervix/pyinstaller-windows:latest
 
-LABEL version="1.0" maintainer="Fortesense Labs <fortesenselabs@gmail.com>"
-
 LABEL org.opencontainers.image.title="MetaTrader" \
     org.opencontainers.image.description="MetaTrader trading platform" \
     org.opencontainers.image.url="https://github.com/FortesenseLabs/wisefinance-mtservices" \
     org.opencontainers.image.source="https://github.com/FortesenseLabs/wisefinance-mtservices/MT5/Dockerfile.MetaTrader5" \
     org.opencontainers.image.version="1.0.0" \
     org.opencontainers.image.vendor="Fortesense Labs" \ 
-    org.opencontainers.image.authors="Ojietohamen Samuel <seekersoftec@gmail.com>" \ 
+    org.opencontainers.image.authors="Fortesense Labs <fortesenselabs@gmail.com>" \ 
     org.opencontainers.image.created=$BUILD_DATE \
     org.opencontainers.image.revision=$VCS_REF \
     org.opencontainers.image.licenses="MIT"
