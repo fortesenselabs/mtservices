@@ -15,7 +15,7 @@ class App(AppBaseTemplate):
         self.logger = mt5.get_logger(path_to_logfile='./logs/mt5_log.log',
                                      loglevel=logging.INFO, time_utc=True)
         self.mt5_connected = mt5.connected(
-            path=r'/root/Metatrader5/terminal64.exe', # path=r'C:/root/Metatrader5/terminal64.exe',
+            path=r'C:/Metatrader5/terminal64.exe', # path=r'C:/root/Metatrader5/terminal64.exe',
             portable=True,
             server='Deriv-Demo', #'OctaFX-Demo', # 'Deriv-Demo',
             login=30565290, # 211568968, 30565290, financial => 21193089 | synthetic => 30565290
