@@ -36,7 +36,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_REPO: metatrader
-          DOCKER_TAG: latest
+          DOCKER_TAG: 5
         run: |
           docker build -t $DOCKER_REPO -f MT5/Dockerfile.MetaTrader5 .
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
