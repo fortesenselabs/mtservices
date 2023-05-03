@@ -33,7 +33,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          docker build -t MetaTrader5 -f /MT5/Dockerfile.MetaTrader5 .
+          docker build -t metatrader5 -f /MT5/Dockerfile.MetaTrader5 .
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          docker tag MetaTrader5 MetaTrader5:latest
-          docker push MetaTrader5:latest
+          docker tag metatrader5 metatrader5:latest
+          docker push metatrader5:latest
