@@ -31,7 +31,7 @@ jobs:
           fi
 
       - name: Build and push Docker image
-        if: env.folder_changed == 'true'
+        if: $GITHUB_OUTPUT == 'true'
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
