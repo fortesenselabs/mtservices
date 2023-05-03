@@ -21,7 +21,7 @@ jobs:
       - name: Check if folder has changed
         id: folder-changed
         run: |
-          if git diff --quiet HEAD^ HEAD -- /MT5; then
+          if git diff --quiet HEAD^ HEAD -- MT5; then
             echo "::set-output name=changed::false"
           else
             echo "::set-output name=changed::true"
@@ -33,7 +33,7 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          docker build -t metatrader5 -f /MT5/Dockerfile.MetaTrader5 .
+          docker build -t metatrader5 -f MT5/Dockerfile.MetaTrader5 .
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
           docker tag metatrader5 metatrader5:latest
           docker push metatrader5:latest
