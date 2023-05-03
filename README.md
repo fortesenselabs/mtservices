@@ -52,3 +52,6 @@ Goto http://localhost:8080/
 - https://github.com/novnc/noVNC
 - https://github.com/TurboVNC/tightvnc
 - https://github.com/pgaskin/easy-novnc
+- https://faun.pub/how-to-push-docker-image-using-github-actions-694397c4f557
+- https://blog.derlin.ch/github-actions-reusable-workflow-docker-images
+- https://stackoverflow.com/questions/5480258/how-can-i-delete-a-remote-tag
