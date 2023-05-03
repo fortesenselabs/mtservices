@@ -22,7 +22,7 @@ jobs:
       - name: Check if MT5 folder has changed
         id: folder-changed
         run: |
-          if git diff --quiet HEAD^ HEAD -- MT5; then
+          if git diff --quiet -- MT5/; then
             echo "MT5 folder has not changed"
             echo "FOLDER_CHANGED=false" >> $GITHUB_OUTPUT
           else
