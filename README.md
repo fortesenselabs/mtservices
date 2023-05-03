@@ -55,3 +55,7 @@ Goto http://localhost:8080/
 - https://faun.pub/how-to-push-docker-image-using-github-actions-694397c4f557
 - https://blog.derlin.ch/github-actions-reusable-workflow-docker-images
 - https://stackoverflow.com/questions/5480258/how-can-i-delete-a-remote-tag
+
+## Docs
+
+gh release create v0.1.0 --title "v0.1.0 (beta)" --notes "this is a beta release" --prerelease
