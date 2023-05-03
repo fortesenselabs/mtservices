@@ -3,7 +3,6 @@ name: Push to Docker Hub on MetaTrader5 release
 on:
   push:
     branches:
-      - 'release/*'
       - main
   pull_request:
     branches:
