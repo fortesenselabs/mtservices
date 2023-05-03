@@ -17,9 +17,9 @@ class App(AppBaseTemplate):
         self.mt5_connected = mt5.connected(
             path=r'C:/Metatrader5/terminal64.exe', # path=r'C:/root/Metatrader5/terminal64.exe',
             portable=True,
-            server='', #'OctaFX-Demo', # 'Deriv-Demo',
-            login=30565290, # financial => 21193089 | synthetic => 30565290
-            password='',
+            server=MT_SERVER, #'OctaFX-Demo', # 'Deriv-Demo',
+            login=MT_LOGIN, # financial => 21193089 | synthetic => 30565290
+            password=MT_PASSWORD,
             timeout=5000,
             logger=self.logger,  # default is None
             ensure_trade_enabled=True,  # default is False
