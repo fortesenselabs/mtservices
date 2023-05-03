@@ -19,7 +19,7 @@ class App(AppBaseTemplate):
             portable=True,
             server='Deriv-Demo', #'OctaFX-Demo', # 'Deriv-Demo',
             login=30565290, # 211568968, 30565290, financial => 21193089 | synthetic => 30565290
-            password='@Ssc21707232', #'NaNUdUHY', '@Ssc21707232',
+            password='',
             timeout=5000,
             logger=self.logger,  # default is None
             ensure_trade_enabled=True,  # default is False

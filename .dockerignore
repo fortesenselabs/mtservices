@@ -1,3 +1,4 @@
 # Ignore Python compiled bytecode.
 **/*.pyc
 **/__pycache__/
+.env
