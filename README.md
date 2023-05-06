@@ -58,6 +58,7 @@ Goto http://localhost:8080/
 - https://stackoverflow.com/questions/5480258/how-can-i-delete-a-remote-tag
 - https://medium.com/codex/run-your-docker-containers-for-free-in-the-cloud-and-for-unlimited-time-361515cb0876
 - https://www.analyticsvidhya.com/blog/2023/03/top-4-cloud-platforms-to-host-or-run-docker-containers-for-free/#Render
+- https://docs.snowflake.com/en/user-guide/intro-key-concepts
 
 ## Docs
 

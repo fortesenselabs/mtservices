@@ -1,0 +1,9 @@
+#
+logs/*
+
+#
+src/*application*
+
+#
+*.log
+config.json
