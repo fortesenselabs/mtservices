@@ -26,16 +26,6 @@ Goto http://localhost:8080/
 
 - MT4 is not fully supported yet
 
-## TODOs
-
-- Add data collector connector (i.e collects data from MetaTrader and stores it in a database)
-- Limit the number of desktop windows to just 1, currently it is about 4 by default
-- Add encryption to the novnc connection
-- Add a proxy server like caddy to proxy the connection instead
-- noVNC does not seem to fully support copy and paste (find a solution)
-- Disable Metaeditor and any other graphical tool apart from MetaTrader
-- Disable the noVNC control bar
-
 ## Resources
 
 - https://github.com/ConSol/docker-headless-vnc-container
