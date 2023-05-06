@@ -28,6 +28,7 @@ Goto http://localhost:8080/
 
 ## TODOs
 
+- Add data collector connector (i.e collects data from MetaTrader and stores it in a database)
 - Limit the number of desktop windows to just 1, currently it is about 4 by default
 - Add encryption to the novnc connection
 - Add a proxy server like caddy to proxy the connection instead
@@ -55,7 +56,12 @@ Goto http://localhost:8080/
 - https://faun.pub/how-to-push-docker-image-using-github-actions-694397c4f557
 - https://blog.derlin.ch/github-actions-reusable-workflow-docker-images
 - https://stackoverflow.com/questions/5480258/how-can-i-delete-a-remote-tag
+- https://medium.com/codex/run-your-docker-containers-for-free-in-the-cloud-and-for-unlimited-time-361515cb0876
+- https://www.analyticsvidhya.com/blog/2023/03/top-4-cloud-platforms-to-host-or-run-docker-containers-for-free/#Render
+- https://docs.snowflake.com/en/user-guide/intro-key-concepts
 
 ## Docs
 
 gh release create v0.1.0 --title "v0.1.0 (beta)" --notes "this is a beta release" --prerelease
+
+docker run --rm -d -p 8080:8080 --name metatrader -v metatrader:/data metatrader:5

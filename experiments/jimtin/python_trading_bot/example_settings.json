@@ -1,0 +1,42 @@
+{
+    "coinbase": {
+        "api_key": "your_api_key",
+        "api_secret": "your_api_secret"
+    },
+    "mt5": {
+        "live": {
+            "username": "Your_Username",
+            "password": "Your Password",
+            "server": "Your Server",
+            "mt5Pathway": "C:/Pathway/to/terminal64.exe",
+            "symbols": ["USDJPY.a"]
+        },
+        "paper": {
+            "username": "Your_Username",
+            "password": "Your Password",
+            "server": "Your Server",
+            "mt5Pathway": "C:/Pathway/to/terminal64.exe",
+            "symbols": ["USDJPY.a"]
+        }
+
+    },
+    "binance": {
+        "live": {
+            "API_Key": "Your API Key",
+            "Secret_Key": "Your Secret Key"
+        },
+        "paper": {
+            "Paper_API_Key": "Your Test Key",
+            "Paper_Secret_Key": "Your Test Secret Key"
+        },
+        "Testing": "True",
+        "symbols": ["BTCUSDT"]
+    },
+    "postgres": {
+        "host": "your_hostname",
+        "database": "your_database",
+        "user": "your_username",
+        "password": "your_secret_password",
+        "port": "port_your_db_listens_on"
+    }
+}

@@ -1,0 +1,3 @@
+
+class AIStrategyIndicator:
+    pass

@@ -3,3 +3,5 @@ samples
 .pytest_cache
 .\...*pytest_cache
 .env
+
+.\...config.json

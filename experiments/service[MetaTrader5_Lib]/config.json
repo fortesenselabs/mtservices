@@ -1,0 +1,46 @@
+{
+  "SERVER_LOGS": "</folder/path/to/logs-folder>",
+
+  "DATABASES": {
+    "MySQL": {
+      "WiseFinanceDB": {
+        "Hostname": "localhost",
+        "Name": "wisefinance_db",
+        "Username": "root",
+        "Password": "password",
+        "Port": "3306",
+        "Parameter": "?parseTime=true",
+        "UseSocket": false,
+        "SocketPath": "/cloudsql/wisefinance:us-central1:mysql"
+      }
+    }
+  },
+
+  "EXCHANGE_PLATFORMS": {
+    "METATRADER": {
+      "VERSION": 5,
+      "SERVER": "<Your-Metatrader5-Account-Server-Name>",
+      "LOGIN": "<Your-Metatrader5-Account-Number>",
+      "PASSWORD": "<Your-Metatrader5-Account-Password>",
+      "TERMINAL_PATH": "<C:/file/path/to/terminal64.exe>",
+      "SELECTED_SYMBOLS": ["Crash 1000 Index", "Crash 500 Index"]
+    },
+    "COINBASE": {
+      "API_KEY": "<Your_api_key>",
+      "API_SECRET": "<Your_api_secret_key>"
+    },
+    "BINANCE": {
+      "API_KEY": "<Your_api_key>",
+      "API_SECRET": "<Your_api_secret_key>"
+    }
+  },
+
+  "NOTIFICATIONS": {
+    "TELEGRAM": {
+      "BOT_TOKEN": "<bot-token>",
+      "CHAT_ID": "<chat-id-to-publish-messages>",
+      "PHONE_NUMBER": "<Your-Telegram-Phone-Number>",
+      "USER_NAME": "<Your-Telegram-Username>"
+    }
+  }
+}
