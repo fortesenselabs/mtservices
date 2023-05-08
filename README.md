@@ -55,3 +55,7 @@ Goto http://localhost:8080/
 gh release create v0.1.0 --title "v0.1.0 (beta)" --notes "this is a beta release" --prerelease
 
 docker run --rm -d -p 8080:8080 --name metatrader -v metatrader:/data metatrader:5
+
+```sql
+    DROP DATABASE IF EXISTS wisefinance_db;
+```
