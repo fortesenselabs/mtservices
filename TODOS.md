@@ -8,7 +8,7 @@ Keep track of features, and bugs to be implemneted or fixed respectively
 
 ## Implementations
 
-- Database Manager (store data (i.e collects data from MetaTrader and stores it in a database))
+- Database Manager (store data (i.e collects data from MetaTrader and stores it in a database)) [Done]
 - make sure the seleccted symbols are actually the ones be subscribed to
 - Notifications
 - Investor (using both the exchange inteface and selected strategies to make decisions)
@@ -19,3 +19,4 @@ Keep track of features, and bugs to be implemneted or fixed respectively
 - noVNC does not seem to fully support copy and paste (find a solution)
 - Disable Metaeditor and any other graphical tool apart from MetaTrader
 - Disable the noVNC control bar
+- Tweak the DWX_Server EA in Metatrader to use use a faster approach (e.g millisecond: 10, numlastmsgs: 100, maximumlostsize: 10, maximumorders: 10)

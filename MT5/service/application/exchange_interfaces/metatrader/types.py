@@ -1,6 +1,13 @@
 class TimeFrames:
     TIMEFRAME_M1 = "M1"
+    TIMEFRAME_M5 = "M5"
+    TIMEFRAME_M15 = "M15"
+    TIMEFRAME_M30 = "M30"
+    TIMEFRAME_H1 = "H1"
+    TIMEFRAME_H4 = "H4"
     TIMEFRAME_D1 = "D1"
+    TIMEFRAME_W1 = "W1"
+    TIMEFRAME_MN = "MN"
 
 
         # self.ORDER_TYPES = {
@@ -47,3 +54,23 @@ class TimeFrames:
         #     # The order is active until 23:59:59 of the specified day. If this time appears to be out of a trading session, the expiration is processed at the nearest trading time.
         #     'SPECIFIED_DAY': self.ORDER_TIME_SPECIFIED_DAY
         # }
+
+
+# from sqlalchemy import Column, Float, Integer, String, DateTime
+# from sqlalchemy.ext.declarative import declarative_base
+
+# Base = declarative_base()
+
+# class TableName(Base):
+#     __tablename__ = 'table_name'
+
+#     id = Column(Integer, primary_key=True)
+#     current_datetime = Column(DateTime)
+#     symbol = Column(String)
+#     time_frame = Column(String)
+#     time = Column(String)
+#     open = Column(Float)
+#     high = Column(Float)
+#     low = Column(Float)
+#     close = Column(Float)
+#     tick_volume = Column(Integer)

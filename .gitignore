@@ -5,3 +5,5 @@ samples
 .env
 
 .\...config.json
+
+.local.session.sql

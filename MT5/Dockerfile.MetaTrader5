@@ -47,7 +47,7 @@ RUN wget https://bootstrap.pypa.io/get-pip.py -O ${DRIVE_C}/Python37/Scripts/get
 
 # Copy Metatrader5 folder inside wine and install required packages
 COPY Metatrader5 ${DRIVE_C}/Metatrader5
-RUN pip install pandas MetaTrader5
+# RUN pip install pandas MetaTrader5
 # COPY assets/metatrader.desktop /usr/share/applications/
 
 # Port
