@@ -1,0 +1,1 @@
+DROP DATABASE IF EXISTS wisefinance_db;
