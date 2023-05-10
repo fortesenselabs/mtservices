@@ -61,7 +61,7 @@ docker run --rm -d -p 8080:8080 --name metatrader -v metatrader:/data metatrader
     DROP DATABASE IF EXISTS wisefinance_db;
 ```
 
-### Start MindsDB
+### Start and Use MindsDB
 
 Run the command below to start MindsDB in Docker.
 
@@ -73,3 +73,12 @@ If you wish to simply spin up the container without the logs, run the following 
 ```bash
    docker run -d -p 47334:47334 -p 47335:47335 mindsdb/mindsdb
 ```
+
+With access to the MySQL located in the host machine 
+```bash
+   docker run --network="host" -p 47334:47334 -p 47335:47335 -v ./mdb_data:/root/mdb_storage mindsdb/mindsdb
+```
+
+https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
+https://dev.to/narayanadithya/using-mindsdb-for-time-series-forecasting-honey-production-in-the-usa-4p05
+https://aicoding.substack.com/p/mindsdb-time-series
