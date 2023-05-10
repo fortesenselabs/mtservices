@@ -8,17 +8,36 @@ class DataBaseSQLStore:
     """
         Store historical data, analysis and the current state of the (trading) environment including its history in MySQL 
     """
-    def __init__(self, logger: logging.Logger, user: str = "", password: str = "", host: str = "", port: int = 3306, database: str = "") -> None:
+    def __init__(self, logger: logging.Logger, user: str = "", password: str = "", host: str = "", port: int = 3306, database: str = "", engine_parser_name: str = "") -> None:
         self.logger = logger
         self.user = user
         self.password = password
         self.host = host
         self.port = port
-        self.engine = create_engine(f"mysql+mysqlconnector://{user}:{password}@{host}:{port}/")
+        self.engine_parser_name = engine_parser_name # mindsdb
+        
+        self.engine = self._set_db_engine(engine_parser_name)
         self._create_database(database) # create database if not exists
-        self.metadata = MetaData(bind=self.engine)
+        self.metadata = MetaData(bind=self.engine, schema=database)
+        
+    def _set_db_engine(self, engine_name: str = "", database_name: str = ""):
+        """
+            Set DB Engine
+        """
+        if engine_name != "mindsdb":
+            if len(database_name) != 0:
+                engine = create_engine(f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}:{self.port}/{database_name}")
+            else:
+                engine = create_engine(f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}:{self.port}/")
+        else:
+            if len(database_name) != 0:
+                engine = create_engine(f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/{database_name}")
+            else:
+                engine = create_engine(f"mysql+pymysql://{self.user}:{self.password}@{self.host}:{self.port}/")
+                
+        return engine
 
-    def _create_database(self, database_name):
+    def _create_database(self, database_name: str):
         """
             Create database if it does not exist and connect to it 
         """
@@ -26,11 +45,11 @@ class DataBaseSQLStore:
 
         if database_exists:
             self.logger.info(f"Database '{database_name}' exists")
-            self.engine = create_engine(f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}:{self.port}/{database_name}")
+            self.engine = self._set_db_engine(self.engine_parser_name, database_name)
         else:
             self.logger.info(f"Database '{database_name}' does not exist > Creating database....")
-            self.engine.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
-            self.engine = create_engine(f"mysql+mysqlconnector://{self.user}:{self.password}@{self.host}:{self.port}/{database_name}")
+            self.engine.execute(f"CREATE DATABASE {database_name}")
+            self.engine = self._set_db_engine(self.engine_parser_name, database_name)
         return
 
     def create_table(self, table_name: str, schema: List[Tuple[str, type]], primary_key: str):

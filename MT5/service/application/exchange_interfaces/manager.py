@@ -1,3 +1,4 @@
+import time
 import logging
 import asyncio
 import threading
@@ -52,7 +53,7 @@ class ExchangeInterfaceManager:
                     table_name = f"{interface.name}_{symbol}_{timeframe}_historic_prices"
                     self.database_interface.create_table(table_name=table_name, schema=interface.table_schema, primary_key="id")
 
-    async def get_interfaces_historic_data_async(self, symbols_data: Dict[str, List[str]] = {"Crash 1000 Index": [TimeFrames.TIMEFRAME_D1]},
+    def get_interfaces_historic_data(self, symbols_data: Dict[str, List[str]] = {"Crash 1000 Index": [TimeFrames.TIMEFRAME_D1]},
                                      start_date: datetime = (datetime.utcnow() - timedelta(days=30)),
                                      end_date: datetime = datetime.utcnow()) -> Dict[str, pd.DataFrame]:
         """
@@ -97,4 +98,5 @@ class ExchangeInterfaceManager:
                 None
         """
         self.logger.info("ExchangeInterfaceManager.get_interfaces_historic_data_background")
-        asyncio.run(self.get_interfaces_historic_data_async(symbols_data=symbols_data, start_date=start_date, end_date=end_date))
+        self.get_interfaces_historic_data(symbols_data=symbols_data, start_date=start_date, end_date=end_date)
+        # asyncio.run(self.get_interfaces_historic_data_async(symbols_data=symbols_data, start_date=start_date, end_date=end_date))
