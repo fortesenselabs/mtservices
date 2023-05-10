@@ -49,6 +49,7 @@ Goto http://localhost:8080/
 - https://medium.com/codex/run-your-docker-containers-for-free-in-the-cloud-and-for-unlimited-time-361515cb0876
 - https://www.analyticsvidhya.com/blog/2023/03/top-4-cloud-platforms-to-host-or-run-docker-containers-for-free/#Render
 - https://docs.snowflake.com/en/user-guide/intro-key-concepts
+- https://docs.mindsdb.com/setup/self-hosted/docker
 
 ## Docs
 
@@ -58,4 +59,17 @@ docker run --rm -d -p 8080:8080 --name metatrader -v metatrader:/data metatrader
 
 ```sql
     DROP DATABASE IF EXISTS wisefinance_db;
+```
+
+### Start MindsDB
+
+Run the command below to start MindsDB in Docker.
+
+```bash
+   docker run -p 47334:47334 -p 47335:47335 mindsdb/mindsdb
+```
+
+If you wish to simply spin up the container without the logs, run the following command:
+```bash
+   docker run -d -p 47334:47334 -p 47335:47335 mindsdb/mindsdb
 ```
