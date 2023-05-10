@@ -1,7 +1,8 @@
 import logging
 import random
+from threading import Thread
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 from application.database.database import DataBaseSQLStore
 from application.exchange_interfaces.manager import ExchangeInterfaceManager
 from application.investor.strategies.base_strategy import BaseStrategy
@@ -27,22 +28,43 @@ class InvestorManager:
         self.database_interface = database_interface
         self.logger = logger
         self.store_data = store_data
+        self.earliest_get_data_start_date = None
         # 
         self.ACTIVE = False
 
+    def _exchange_interfaces_get_historic_data(self):
+        """
+            Exchange Interface [Get Historic Data]
+        """
+        while True:
+            for interface in self.exchange_manager.exchange_interfaces:
+                symbols_data = interface.get_symbols()
+                end_date = datetime.utcnow()
+                start_date = (end_date - timedelta(days=10))
+                # control start and end date from here 
+                # 10 - 15 days per request should be fast enough
+                # to ensure the current response data is not equal to the already existing data in the database,  use hashing
+                self.exchange_manager.get_interfaces_historic_data_background(symbols_data = symbols_data, start_date = start_date, end_date = end_date)
+                time.sleep(1)
+            
+        return
+        
     def start(self):
         """
             start() can be used to initialize the manager.  
         """
         self.logger.info("InvestorManager.start")
         self.exchange_manager.start()
-        
-        for interface in self.exchange_manager.exchange_interfaces:
-            symbols_data = interface.get_symbols()
-            ## make this function a background running one
-            self.exchange_manager.get_interfaces_historic_data_background(symbols_data = symbols_data) 
+
+        # Taken from https://superfastpython.com/thread-periodic-background/
+        # create and start the daemon thread
+        self.logger.info('ExchangeInterfaceManager.get_interfaces_historic_data_background > Starting background task...')
+        daemon = Thread(target=self._exchange_interfaces_get_historic_data, daemon=True, name='ExchangeInterfaceManager.get_interfaces_historic_data_background_Background')
+        daemon.start()
         # self.logger.info(data)
+        self.logger.info('Main thread is carrying on...')
         self.ACTIVE = True
+        self.logger.info('Investor activated')
         
 
     def stop(self):
