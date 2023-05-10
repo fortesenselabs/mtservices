@@ -82,3 +82,59 @@ With access to the MySQL located in the host machine
 https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
 https://dev.to/narayanadithya/using-mindsdb-for-time-series-forecasting-honey-production-in-the-usa-4p05
 https://aicoding.substack.com/p/mindsdb-time-series
+
+**Some commands in mindsdb:**
+```sql
+-- Connection success
+--- You can list all the linked databases using the command below:
+-- SHOW DATABASES;
+-- SHOW TABLES FROM wisefinance;
+-- SELECT * FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices LIMIT 10;
+-- SELECT COUNT(*) FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices;
+
+-- Create and Train the Model
+-- CREATE PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_M30
+-- FROM wisefinance
+--     (SELECT datetime, open, high, low, close, tick_volume FROM MetaTrader_volatility_75_index_M30_historic_prices)
+-- PREDICT close
+-- ORDER BY datetime
+-- WINDOW 12
+-- HORIZON 4
+
+-- [A New Set of WINDOWs and Horizons]
+-- WINDOW 12
+-- HORIZON 1
+
+
+-- Check if the Model has finished training
+-- SELECT * FROM predictors;
+
+-- Time To Forecast
+
+-- [COPY 1]
+-- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE 
+-- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table 
+-- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table 
+-- WHERE orig_table.datetime > LATEST
+-- ORDER BY orig_table.ds DESC 
+-- LIMIT 10;
+
+-- [COPY 2] [Recommended]
+SELECT m.datetime AS DateTime, m.open As Open, m.high As High, m.low As Low, m.close AS PredictedClosePrice
+FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m 
+JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
+WHERE t.datetime > LATEST;
+
+-- [COPY 3]
+-- SELECT t.datetime, t.open, t.high, t.low, t.tick_volume, t.close AS actual_close_price,
+--        m.close AS predicted_close_price
+-- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
+-- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
+-- WHERE t.datetime > LATEST
+-- LIMIT 4;
+
+
+-- DELETE MODEL
+-- DROP PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_m30;
+
+```
