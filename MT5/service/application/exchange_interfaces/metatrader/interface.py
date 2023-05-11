@@ -2,6 +2,7 @@
 import json
 import logging
 import asyncio
+import ta
 import pandas as pd
 from time import sleep
 from threading import Thread
@@ -170,7 +171,8 @@ class MetaTraderInterface:
                  verbose: bool = True,
                  open_test_trades: bool = False,
                  selected_symbols: Dict[str, List] = {},
-                 subscribe_type: List[str] = ["tick", "bar"]):
+                 subscribe_type: List[str] = ["tick", "bar"],
+                 threshold: float = 20.0):
         
         # super().__init__(files_path, sleep_delay, max_retry_command_seconds, verbose, open_test_trades)
       
@@ -180,6 +182,8 @@ class MetaTraderInterface:
         self.files_path = files_path
         self.logger = logger
         self.subscribe_type = subscribe_type
+        self.threshold = threshold
+
         self.selected_symbols = selected_symbols
         if (self.selected_symbols) == 0:
             self.selected_symbols = {
@@ -197,8 +201,14 @@ class MetaTraderInterface:
             ('low', Float),
             ('close', Float),
             ('tick_volume', Integer),
+            # TA
+            ('rsi_ta', Float),
+            # ('average_true_range_ta', Float),
+            # ('adx_ta', Float),
+            # ('aroon_indicator_ta', Float),
             ('close_diff', Float),
-            ('is_close_diff_gt_threshold', Integer)]
+            ('rise_above_threshold', Integer),
+            ('fall_below_threshold', Integer)]
 
         self.base_interface = BaseMTInterface(
                                  files_path = self.files_path, 
@@ -282,7 +292,7 @@ class MetaTraderInterface:
             self.base_interface.subscribe_symbols_bar_data(sub_symbols)
         return
     
-    def transform_historical_data(self, data: pd.DataFrame, n_steps: int = 1, threshold: float = 20.0):
+    def transform_historical_data(self, symbol_data: str, data: pd.DataFrame, n_steps: int = 1):
         """
             Tranform Historical Data
 
@@ -298,8 +308,21 @@ class MetaTraderInterface:
         data['close_diff'] = data['close'].diff(periods = n_steps)
         
         # Add a new column to indicate if the difference is greater than the threshold
-        data['is_close_diff_gt_threshold'] = (data['close_diff'] > threshold).astype(int)
+        # account for buy and sell (i.e if the prices is less than the negative instance of threshold[fall] and if it greater than the positive threshold[rise])
+        data['rise_above_threshold'] = (data['close_diff'] > self.threshold).astype(int)
+        data['fall_below_threshold'] = (data['close_diff'] < (-1 * self.threshold)).astype(int)
+    
+        self.logger.info(f"MetaTraderInterface.transform_historical_data => Adding TA Indicators[{symbol_data}]: {not data.empty}")
+        # TA [https://medium.com/geekculture/top-4-python-libraries-for-technical-analysis-db4f1ea87e09, https://github.com/bukosabino/ta, https://github.com/twopirllc/pandas-ta]
+        # Clean NaN values
+        # data = ta.utils.dropna(data)
+        # data = ta.add_all_ta_features(data, open="open", high="high", low="low", close="close")
+        data['rsi_ta'] = ta.momentum.rsi(close = data['close'], fillna=True)
+        # data['average_true_range_ta'] = ta.volatility.average_true_range(high = data['high'], low = data['low'], close = data['close'], fillna=True)
+        # data['adx_ta'] = ta.trend.adx(high = data['high'], low = data['low'], close = data['close'], fillna=True)
+        # data['aroon_indicator_ta'] = ta.trend.aroon_indicator(close = data['close'], fillna=True)
 
+        self.logger.info(f"MetaTraderInterface.transform_historical_data => Finished Adding TA Indicators[{symbol_data}]: {not data.empty}")
         # Return the transformed DataFrame
         return data
         
@@ -332,7 +355,7 @@ class MetaTraderInterface:
                 converted_dict['tick_volume'].append(values['tick_volume'])
 
             data = pd.DataFrame(converted_dict)
-            return self.transform_historical_data(data = data)
+            return self.transform_historical_data(symbol_data=symbol_time_frame_key, data=data)
         
         return pd.DataFrame()
     
