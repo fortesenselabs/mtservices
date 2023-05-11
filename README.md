@@ -95,11 +95,11 @@ https://aicoding.substack.com/p/mindsdb-time-series
 -- Create and Train the Model
 -- CREATE PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_M30
 -- FROM wisefinance
---     (SELECT datetime, open, high, low, close, tick_volume FROM MetaTrader_volatility_75_index_M30_historic_prices)
--- PREDICT close
+--     (SELECT * FROM MetaTrader_volatility_75_index_M30_historic_prices)
+-- PREDICT is_close_diff_gt_threshold
 -- ORDER BY datetime
--- WINDOW 12
--- HORIZON 4
+-- WINDOW 25
+-- HORIZON 2
 
 -- [A New Set of WINDOWs and Horizons]
 -- WINDOW 12
@@ -107,7 +107,7 @@ https://aicoding.substack.com/p/mindsdb-time-series
 
 
 -- Check if the Model has finished training
--- SELECT * FROM predictors;
+SELECT * FROM predictors;
 
 -- Time To Forecast
 
@@ -120,10 +120,10 @@ https://aicoding.substack.com/p/mindsdb-time-series
 -- LIMIT 10;
 
 -- [COPY 2] [Recommended]
-SELECT m.datetime AS DateTime, m.open As Open, m.high As High, m.low As Low, m.close AS PredictedClosePrice
-FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m 
-JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
-WHERE t.datetime > LATEST;
+-- SELECT m.datetime AS DateTime, m.close AS PredictedClosePrice
+-- FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m 
+-- JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
+-- WHERE t.datetime > LATEST;
 
 -- [COPY 3]
 -- SELECT t.datetime, t.open, t.high, t.low, t.tick_volume, t.close AS actual_close_price,
@@ -136,5 +136,4 @@ WHERE t.datetime > LATEST;
 
 -- DELETE MODEL
 -- DROP PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_m30;
-
 ```
