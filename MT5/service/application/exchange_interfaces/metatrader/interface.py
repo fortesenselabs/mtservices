@@ -10,7 +10,7 @@ from traceback import print_exc
 from random import random
 from datetime import datetime, timedelta
 from typing import List, Dict
-from sqlalchemy import Integer, String, Float, DateTime, Column
+from sqlalchemy import Integer, String, Float,  DateTime, Column
 from application.utils.conversion import convert_dict_to_list
 from application.exchange_interfaces.metatrader.orders import Order
 from application.exchange_interfaces.metatrader.account_info import AccountInfo
@@ -156,10 +156,10 @@ class MetaTraderInterface:
     Please only run this on a demo account!
 
     Format of the selected_symbols is => {
-    '<symbol_name_1>': ['<timeframe_1>', '<timeframe_2>', '...'],
-    '<symbol_name_2>': ['<timeframe_1>', '<timeframe_2>', '...'],
-    ...
-    '<symbol_name_N>': ['<timeframe_1>', '<timeframe_2>', '...']}
+        '<symbol_name_1>': ['<timeframe_1>', '<timeframe_2>', '...'],
+        '<symbol_name_2>': ['<timeframe_1>', '<timeframe_2>', '...'],
+        ...
+        '<symbol_name_N>': ['<timeframe_1>', '<timeframe_2>', '...']}
     """
 
     def __init__(self, 
@@ -183,7 +183,7 @@ class MetaTraderInterface:
         self.selected_symbols = selected_symbols
         if (self.selected_symbols) == 0:
             self.selected_symbols = {
-                "EURUSD": [],
+                "EURUSD": [TimeFrames.TIMEFRAME_D1, TimeFrames.TIMEFRAME_H1],
                 "GBPJPY": [TimeFrames.TIMEFRAME_M5],
                 "AUDCAD": [TimeFrames.TIMEFRAME_M1]}
 
@@ -196,7 +196,9 @@ class MetaTraderInterface:
             ('high', Float),
             ('low', Float),
             ('close', Float),
-            ('tick_volume', Integer)]
+            ('tick_volume', Integer),
+            ('close_diff', Float),
+            ('is_close_diff_gt_threshold', Integer)]
 
         self.base_interface = BaseMTInterface(
                                  files_path = self.files_path, 
@@ -280,6 +282,27 @@ class MetaTraderInterface:
             self.base_interface.subscribe_symbols_bar_data(sub_symbols)
         return
     
+    def transform_historical_data(self, data: pd.DataFrame, n_steps: int = 1, threshold: float = 20.0):
+        """
+            Tranform Historical Data
+
+            :param
+                data (pd.DataFrame) - data
+                n_steps (int) - indicate the periods to take into consideration when calculating the close difference
+                threshold() - Threshold (N - pips)
+        """
+        # Sort the DataFrame by datetime in ascending order
+        data = data.sort_values('datetime')
+
+        # Calculate the differences between consecutive rows in the 'close' column
+        data['close_diff'] = data['close'].diff(periods = n_steps)
+        
+        # Add a new column to indicate if the difference is greater than the threshold
+        data['is_close_diff_gt_threshold'] = (data['close_diff'] > threshold).astype(int)
+
+        # Return the transformed DataFrame
+        return data
+        
     def get_historic_data(self, symbol: str = "EURUSD", time_frame: str = TimeFrames.TIMEFRAME_D1, 
                           start_date: datetime = (datetime.utcnow() - timedelta(days=30)), end_date: datetime = datetime.utcnow()) -> pd.DataFrame:
         """
@@ -309,7 +332,7 @@ class MetaTraderInterface:
                 converted_dict['tick_volume'].append(values['tick_volume'])
 
             data = pd.DataFrame(converted_dict)
-            return data
+            return self.transform_historical_data(data = data)
         
         return pd.DataFrame()
     

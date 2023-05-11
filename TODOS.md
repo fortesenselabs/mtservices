@@ -8,7 +8,7 @@ Keep track of features, and bugs to be implemneted or fixed respectively
 
 ## Implementations
 
-- Database Manager (store data (i.e collects data from MetaTrader and stores it in a database)) [Done]
+- Use Task queue to properlly handle the historical data function running in the background
 - make sure the seleccted symbols are actually the ones be subscribed to
 - Notifications
 - Investor (using both the exchange inteface and selected strategies to make decisions)

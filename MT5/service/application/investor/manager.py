@@ -1,6 +1,7 @@
 import logging
 import random
 from threading import Thread
+import time
 from typing import List
 from datetime import datetime, timedelta
 from application.database.database import DataBaseSQLStore
@@ -58,8 +59,8 @@ class InvestorManager:
 
         # Taken from https://superfastpython.com/thread-periodic-background/
         # create and start the daemon thread
-        self.logger.info('ExchangeInterfaceManager.get_interfaces_historic_data_background > Starting background task...')
-        daemon = Thread(target=self._exchange_interfaces_get_historic_data, daemon=True, name='ExchangeInterfaceManager.get_interfaces_historic_data_background_Background')
+        self.logger.info('InvestorManager._exchange_interfaces_get_historic_data > Starting background task...')
+        daemon = Thread(target=self._exchange_interfaces_get_historic_data, daemon=True, name='InvestorManager._exchange_interfaces_get_historic_data_Background')
         daemon.start()
         # self.logger.info(data)
         self.logger.info('Main thread is carrying on...')
