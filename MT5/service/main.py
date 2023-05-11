@@ -40,7 +40,7 @@ def main():
             "Boom 500 Index": [TimeFrames.TIMEFRAME_H4, TimeFrames.TIMEFRAME_H1],
             "Boom 1000 Index": [TimeFrames.TIMEFRAME_D1, TimeFrames.TIMEFRAME_M30]
         } 
-        metatrader_interface = MetaTraderInterface(logger = logger, files_path=config.metatrader['FILES_PATH'], selected_symbols=selected_symbols, open_test_trades = True)
+        metatrader_interface = MetaTraderInterface(logger = logger, files_path=config.metatrader['FILES_PATH'], selected_symbols=selected_symbols, open_test_trades=False)
         exchange_manager = ExchangeInterfaceManager(logger = logger, exchange_interfaces=[metatrader_interface], database_interface=database_interface, store_data=True)
         logger.info("Exchange Info: %s", exchange_manager.get_all_accounts_info())
 

@@ -67,7 +67,7 @@ class ExchangeInterfaceManager:
             Returns:
                 Dict[str, pd.DataFrame]: Dictionary of interface names and corresponding dataframes.
         """
-        self.logger.info("ExchangeInterfaceManager.get_interfaces_historic_data_async")
+        self.logger.info("ExchangeInterfaceManager.get_interfaces_historic_data")
         data = {}
         for interface in self.exchange_interfaces:
             for symbol, timeframes in symbols_data.items():
@@ -77,7 +77,8 @@ class ExchangeInterfaceManager:
                         # format symbol (convert to lower case and replace spaces with underscores)
                         symbol = symbol.lower().replace(" ", "_")
                         data[f"{interface.name}_{symbol}_{timeframe}"] = historic_data
-                        if self.store_data and not historic_data.empty:
+                        self.logger.info(f"Historic DataFrame Length: {len(historic_data)}")
+                        if self.store_data and len(historic_data) != 0:
                             table_name = f"{interface.name}_{symbol}_{timeframe}_historic_prices"
                             self.database_interface.store_data(table_name=table_name, data=historic_data)
 
