@@ -9,7 +9,7 @@ RUN go mod init build && \
 FROM engineervix/pyinstaller-windows:latest
 
 LABEL org.opencontainers.image.title="MetaTrader" \
-    org.opencontainers.image.description="MetaTrader trading platform" \
+    org.opencontainers.image.description="MetaTrader trading platform[with DWX Connect EA]" \
     org.opencontainers.image.url="https://github.com/FortesenseLabs/wisefinance-mtservices" \
     org.opencontainers.image.source="https://github.com/FortesenseLabs/wisefinance-mtservices/MT5/Dockerfile.MetaTrader5" \
     org.opencontainers.image.version="1.0.0" \
