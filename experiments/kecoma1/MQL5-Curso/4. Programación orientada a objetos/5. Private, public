@@ -1,0 +1,58 @@
+class Persona {
+   // Atributos
+   string            _nombre;
+   string            _apellido;
+   
+private:
+   void privateMethod() {}
+   
+public:
+   static uint       persons;
+   
+   // Constructor
+   Persona(string n, string a) {
+      this._nombre = n;
+      this._apellido = a;
+      persons += 1;
+   }
+   
+   // Segundo constructor 
+   Persona(string n) {
+      _nombre = n;
+      persons += 1; // ADD
+   }
+
+   void caminar() {
+      Print("I'm walking");
+   }
+
+   void saltar() {
+      Print("I'm jumping");
+   }
+
+   // Método
+   string ToString() {
+      return _nombre+" "+_apellido+". There are "+IntegerToString(persons)+" persons";
+   }
+};
+uint Persona::persons=0;
+ 
+void OnInit() {
+
+   Persona object("Kevin", "De la Coba");
+   Print(object.ToString());
+
+   Persona o2("Test");
+   Print(o2.ToString());
+
+   Persona o3("Test");
+   Print(o3.ToString());
+
+   Persona o4("Test");
+   Print(o4.ToString());
+
+   Persona o5("Test");
+   Print(o5.ToString());
+ 
+
+}

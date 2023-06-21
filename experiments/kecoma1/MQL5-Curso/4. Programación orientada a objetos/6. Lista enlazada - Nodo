@@ -1,0 +1,37 @@
+class Nodo {
+   Nodo        *siguiente;
+   ushort      id;
+   
+public:
+   static ushort    nodos;
+   
+   Nodo() {
+      siguiente = NULL;
+      nodos += 1;
+      id = nodos;
+   }
+   
+   Nodo(Nodo *s) {
+      siguiente = s;
+      nodos += 1;
+      id = nodos;
+   }
+   
+   void setSiguiente(Nodo *s) {
+      this.siguiente = s;
+   }
+   
+   string toString() {
+      return "Nodo "+IntegerToString(id)+""+ ( (siguiente == NULL) ? "" : " --> "+siguiente.toString() );
+   }
+};
+ushort Nodo::nodos=0;
+ 
+void OnInit() {
+   Nodo n1();
+   Nodo n2();
+   
+   n1.setSiguiente(&n2);
+
+   Print(n1.toString());
+}

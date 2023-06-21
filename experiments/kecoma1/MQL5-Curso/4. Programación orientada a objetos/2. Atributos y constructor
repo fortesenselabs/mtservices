@@ -1,0 +1,32 @@
+class Persona {
+   // Atributos
+   string            _nombre;
+   string            _apellido;
+   uint              _id;
+   
+public:
+   // Constructor
+   Persona(string n, string a, uint id) {
+      this._nombre = n;
+      this._apellido = a;
+      this._id = id;
+   }
+   
+   // Segundo constructor 
+   Persona(string n) {
+      _nombre = n;
+   }
+   
+   string ToString() {
+      return _nombre+" "+_apellido;
+   }
+};
+ 
+void OnInit() {
+
+   Persona object("Kevin", "De la Coba", 1234567);
+   Persona o2("Test");
+   
+   Print(o2.ToString());
+   
+}

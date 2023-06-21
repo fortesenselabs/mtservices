@@ -1,0 +1,14 @@
+
+void OnInit() {
+   // Tarea: Declarar un array de 5 elementos
+   int array[];
+   
+   // array[0] = 1; // ¡¡ERROR!!
+   
+   ArrayResize(array, 5);
+   
+   array[0] = 1;
+   
+   Print(">>> ", ArraySize(array));
+   ArrayFree(array);
+}

@@ -1,0 +1,106 @@
+#include <Trade/Trade.mqh>
+CTrade trade;
+ulong trade_ticket = 0;
+bool modified = false;
+double goal = 0;
+
+int ema_fast_h;
+int ema_slow_h;
+
+double ema_fast[];
+double ema_slow[];
+
+int bars = Bars(_Symbol, _Period);
+bool new_candle() {
+   int current_bars = Bars(_Symbol, _Period);
+
+   if(bars != current_bars) {
+      bars = current_bars;
+      return true;
+   }
+
+   return false;
+}
+
+bool buy_condition() {
+   return ema_fast[1] < ema_slow[1] && ema_fast[0] > ema_slow[0];
+}
+
+bool sell_condition() {
+   return ema_fast[1] > ema_slow[1] && ema_fast[0] < ema_slow[0];
+}
+
+bool operation_closed() {
+   return !PositionSelectByTicket(trade_ticket);
+}
+
+void break_even() {
+   double profit = PositionGetDouble(POSITION_PROFIT);
+   double price_open = PositionGetDouble(POSITION_PRICE_OPEN);
+   
+   if (profit >= 1 && !modified) {
+      trade.PositionModify(trade_ticket, price_open+15*_Point, 0);
+      modified = true;
+   }
+}
+
+void trailing_stop() {
+   double current_price[];
+   CopyClose(_Symbol, _Period, 0, 1, current_price);
+   long type = PositionGetInteger(POSITION_TYPE);
+   
+   if (type == POSITION_TYPE_BUY && current_price[0] >= goal) {
+      trade.PositionModify(trade_ticket, goal-20*_Point, 0);
+      goal += 50*_Point;
+   } else if (type == POSITION_TYPE_SELL && current_price[0] <= goal) {
+      trade.PositionModify(trade_ticket, goal+20*_Point, 0);
+      goal -= 50*_Point;
+   }
+}
+
+int OnInit() {
+   // Loading the handles
+   ema_fast_h = iMA(_Symbol, _Period, 10, 0, MODE_EMA, PRICE_CLOSE);
+   ema_slow_h = iMA(_Symbol, _Period, 100, 0, MODE_EMA, PRICE_CLOSE);
+   
+   if (ema_fast_h == INVALID_HANDLE ||ema_slow_h == INVALID_HANDLE) {
+      Print("Error loading the EMA handles");
+      return INIT_FAILED;
+   }
+   
+   // Setting the arrays as series
+   ArraySetAsSeries(ema_fast, true);
+   ArraySetAsSeries(ema_slow, true);
+   
+   return INIT_SUCCEEDED;
+}
+
+void OnDeinit(const int reason) {
+   // Releasing the handles
+   if (ema_fast_h != INVALID_HANDLE) IndicatorRelease(ema_fast_h);
+   if (ema_slow_h != INVALID_HANDLE) IndicatorRelease(ema_slow_h);
+}
+
+void OnTick() {
+   CopyBuffer(ema_fast_h, 0, 1, 2, ema_fast);
+   CopyBuffer(ema_slow_h, 0, 1, 2, ema_slow);
+   
+   if (!operation_closed()) trailing_stop();
+   
+   // Buy condition
+   if (buy_condition() && new_candle() && operation_closed()) {
+      double Ask = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_ASK), _Digits);
+      trade.Buy(0.01, _Symbol, Ask, Ask-100*_Point);
+      trade_ticket = trade.ResultOrder();
+      goal = Ask+50*_Point;
+      modified = false;
+   } 
+   // Sell condition
+   else if (sell_condition() && new_candle() && operation_closed()) {
+      double Bid = NormalizeDouble(SymbolInfoDouble(_Symbol, SYMBOL_BID), _Digits);
+      trade.Sell(0.01, _Symbol, Bid, Bid+100*_Point);
+      trade_ticket = trade.ResultOrder();
+      goal = Bid-50*_Point;
+      modified = false;
+   }
+}

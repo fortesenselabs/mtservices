@@ -1,0 +1,73 @@
+class Nodo {
+   Nodo        *siguiente;
+   ushort      id;
+   
+public:
+   static ushort    nodos;
+   
+   Nodo() {
+      siguiente = NULL;
+      nodos += 1;
+      id = nodos;
+   }
+   
+   Nodo(Nodo *s) {
+      siguiente = s;
+      nodos += 1;
+      id = nodos;
+   }
+   
+   void setSiguiente(Nodo *s) {
+      if (siguiente == NULL)
+         this.siguiente = s;
+      else
+         this.siguiente.setSiguiente(s);
+   }
+   
+   string toString() {
+      return "Nodo "+IntegerToString(id)+""+ ( (siguiente == NULL) ? "" : " --> "+siguiente.toString() );
+   }
+};
+ushort Nodo::nodos=0;
+
+
+
+class ListaEnlazada {
+   Nodo     *primero;
+   
+public:
+   
+   ListaEnlazada() {
+      primero = NULL;
+   }
+   
+   ListaEnlazada(Nodo *nodo) {
+      primero = nodo;
+   }
+   
+   void AnadirNodo(Nodo *nodo) {
+      if (primero != NULL)
+         this.primero.setSiguiente(nodo);
+      else
+         this.primero = nodo;
+   }
+   
+   string toString() {
+      return primero.toString();
+   }
+};
+ 
+ 
+
+void OnInit() {
+   Nodo n1(), n2(), n3(), n4(), n5();
+   ListaEnlazada lista();
+   
+   lista.AnadirNodo(&n1);
+   lista.AnadirNodo(&n2);
+   lista.AnadirNodo(&n3);
+   lista.AnadirNodo(&n4);
+   lista.AnadirNodo(&n5);
+   
+   Print(lista.toString());
+}

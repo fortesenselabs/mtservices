@@ -1,0 +1,62 @@
+int ema_fast_h;
+int ema_slow_h;
+
+double ema_fast[];
+double ema_slow[];
+
+int bars = Bars(_Symbol, _Period);
+bool new_candle() {
+   int current_bars = Bars(_Symbol, _Period);
+
+   if(bars != current_bars) {
+      bars = current_bars;
+      return true;
+   }
+
+   return false;
+}
+
+bool buy_condition() {
+   return ema_fast[1] < ema_slow[1] && ema_fast[0] > ema_slow[0];
+}
+
+bool sell_condition() {
+   return ema_fast[1] > ema_slow[1] && ema_fast[0] < ema_slow[0];
+}
+
+int OnInit() {
+   // Loading the handles
+   ema_fast_h = iMA(_Symbol, _Period, 10, 0, MODE_EMA, PRICE_CLOSE);
+   ema_slow_h = iMA(_Symbol, _Period, 100, 0, MODE_EMA, PRICE_CLOSE);
+   
+   if (ema_fast_h == INVALID_HANDLE ||ema_slow_h == INVALID_HANDLE) {
+      Print("Error loading the EMA handles");
+      return INIT_FAILED;
+   }
+   
+   // Setting the arrays as series
+   ArraySetAsSeries(ema_fast, true);
+   ArraySetAsSeries(ema_slow, true);
+   
+   return INIT_SUCCEEDED;
+}
+
+void OnDeinit(const int reason) {
+   // Releasing the handles
+   if (ema_fast_h != INVALID_HANDLE) IndicatorRelease(ema_fast_h);
+   if (ema_slow_h != INVALID_HANDLE) IndicatorRelease(ema_slow_h);
+}
+
+void OnTick() {
+   CopyBuffer(ema_fast_h, 0, 1, 2, ema_fast);
+   CopyBuffer(ema_slow_h, 0, 1, 2, ema_slow);
+   
+   // Buy condition
+   if (buy_condition() && new_candle()) {
+   
+   } 
+   // Sell condition
+   else if (sell_condition() && new_candle()) {
+   
+   }
+}

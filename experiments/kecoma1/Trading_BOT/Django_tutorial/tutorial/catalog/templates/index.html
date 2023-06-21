@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}
+<title>Kevin Films</title>
+{% endblock %}
+
+{% block content %}
+<h1>Kevin Films</h1>
+<ul>
+	<li><strong><a href="{% url 'actors' %}">Number of actors</a></strong>: {{ number_actors }}</li>
+	<li><strong><a href="{% url 'films' %}">Number of films</a></strong>: {{ number_films }}</li>
+</ul>
+{% endblock %}
