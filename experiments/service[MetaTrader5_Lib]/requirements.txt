@@ -1,4 +1,0 @@
-numpy
-pandas
-MetaTrader5
-# git+https://github.com/FortesenseLabs/pymt5adapter.git
