@@ -1,1 +1,0 @@
-# NeuralNetwork-MQL5

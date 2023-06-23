@@ -26,5 +26,9 @@ https://www.fightforex.info/how-to-add-a-url-to-allowed-urls-list-in-mt4/
 
 https://www.mql5.com/en/blogs/post/706665
 
+https://www.mql5.com/en/articles/342
+
+https://yalantis.com/blog/rust-web-frameworks/
+
 [CHeck the Comments]
 https://www.youtube.com/watch?v=ZNA2BpssnhM&list=PLFYcVF7huJR_v-uaYPJFs5xttdi19f2OO

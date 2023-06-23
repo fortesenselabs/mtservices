@@ -7,3 +7,7 @@ samples
 .\...config.json
 
 .local.session.sql
+
+sockets/socket-server-rs/Cargo.lock
+
+sockets/socket-server-rs/target/
