@@ -1,13 +1,13 @@
 //+------------------------------------------------------------------+
-//|                                              ServerCheckExample  |
-//|                        Copyright 2021, MetaQuotes Software Corp. |
-//|                                             https://www.mql5.com |
+//|                                         WiseFinanceSocketClient  |
+//|                                 Copyright 2023, Fortesense Labs. |
+//|                                      https://www.wisefinance.com |
 //+------------------------------------------------------------------+
 
-#property copyright "Copyright 2021, MetaQuotes Software Corp."
-#property link "https://www.mql5.com"
+#property copyright "Copyright 2023, Fortesense Labs."
+#property link "https://www.wisefinance.com"
 #property version "1.00"
-#property description "Server Check Example"
+#property description "Wise Finance Socket Client"
 
 #include <Json.mqh>
 
@@ -19,6 +19,46 @@ bool ExtTLS = false;
 int timerInterval = 65 * 1000; // Timer interval in milliseconds
 
 MqlRates candles[];
+
+// Function to establish a socket connection
+int ConnectSocket(string address, int port)
+{
+  int socket = SocketCreate();
+  if (socket != INVALID_HANDLE)
+  {
+    if (SocketConnect(socket, address, port, 1000))
+    {
+      Print("Established connection to ", address, ":", port);
+      string subject, issuer, serial, thumbprint;
+      datetime expiration;
+
+      if (SocketTlsCertificate(socket, subject, issuer, serial, thumbprint, expiration))
+      {
+        Print("TLS certificate:");
+        Print("   Owner:  ", subject);
+        Print("   Issuer:  ", issuer);
+        Print("   Number:     ", serial);
+        Print("   Print: ", thumbprint);
+        Print("   Expiration: ", expiration);
+        ExtTLS = true;
+      }
+
+      return socket;
+    }
+    else
+    {
+      Print("Connection to ", address, ":", port, " failed, error ", GetLastError());
+    }
+
+    SocketClose(socket);
+  }
+  else
+  {
+    Print("Failed to create a socket, error ", GetLastError());
+  }
+
+  return INVALID_HANDLE;
+}
 
 //+------------------------------------------------------------------+
 //| Send command to the server                                       |
@@ -88,71 +128,58 @@ bool HTTPRecv(int socket, uint timeout)
 }
 
 //+------------------------------------------------------------------+
-//| Timer event handler                                              |
-//+------------------------------------------------------------------+
-void OnTimer()
-{
-  int socket = SocketCreate();
-
-  //--- check the handle
-  if (socket != INVALID_HANDLE)
-  {
-    //--- connect if all is well
-    if (SocketConnect(socket, Address, Port, 1000))
-    {
-      Print("Established connection to ", Address, ":", Port);
-      string subject, issuer, serial, thumbprint;
-      datetime expiration;
-
-      //--- if connection is secured by the certificate, display its data
-      if (SocketTlsCertificate(socket, subject, issuer, serial, thumbprint, expiration))
-      {
-        Print("TLS certificate:");
-        Print("   Owner:  ", subject);
-        Print("   Issuer:  ", issuer);
-        Print("   Number:     ", serial);
-        Print("   Print: ", thumbprint);
-        Print("   Expiration: ", expiration);
-        ExtTLS = true;
-      }
-
-      //--- send GET request to the server
-      if (HTTPSend(socket, "GET / HTTP/1.1\r\nHost: www.mql5.com\r\nUser-Agent: MT5\r\n\r\n"))
-      {
-        Print("GET request sent");
-
-        //--- read the response
-        if (!HTTPRecv(socket, 1000))
-          Print("Failed to get a response, error ", GetLastError());
-      }
-      else
-        Print("Failed to send GET request, error ", GetLastError());
-    }
-    else
-      Print("Connection to ", Address, ":", Port, " failed, error ", GetLastError());
-
-    //--- close a socket after using
-    SocketClose(socket);
-  }
-  else
-    Print("Failed to create a socket, error ", GetLastError());
-}
-
-//+------------------------------------------------------------------+
 //| Send POST request to the server                                  |
 //+------------------------------------------------------------------+
-bool HTTPPost(int socket, string endpoint, string postData)
+bool HTTPPostRequest(int socket, string endpoint, string data)
 {
   string request = "POST " + endpoint + " HTTP/1.1\r\n"
                                         "Host: www.mql5.com\r\n"
                                         "Content-Type: application/json\r\n"
                                         "Content-Length: " +
-                   IntegerToString(StringLen(postData)) + "\r\n"
-                                                          "\r\n" +
-                   postData;
+                   IntegerToString(StringLen(data)) + "\r\n"
+                                                      "\r\n" +
+                   data;
 
   return HTTPSend(socket, request);
 }
+
+//+------------------------------------------------------------------+
+//| Send GET request to the server                                  |
+//+------------------------------------------------------------------+
+bool HTTPGetRequest(int socket, string endpoint, string data)
+{
+  string request = "GET " + endpoint + " HTTP/1.1\r\n"
+                                       "Host: www.mql5.com\r\n"
+                                       "User-Agent: MT5\r\n"
+                                       "\r\n";
+
+  return HTTPSend(socket, request);
+}
+
+//+------------------------------------------------------------------+
+//| Timer event handler                                              |
+//+------------------------------------------------------------------+
+void OnTimer()
+{
+  int socket = ConnectSocket(Address, Port);
+  if (socket != INVALID_HANDLE)
+  {
+    //--- send GET request to the server
+    if (HTTPGetRequest(socket, "", ""))
+    {
+      Print("GET request sent");
+
+      //--- read the response
+      if (!HTTPRecv(socket, 1000))
+        Print("Failed to get a response, error ", GetLastError());
+    }
+    else
+      Print("Failed to send GET request, error ", GetLastError());
+
+    SocketClose(socket);
+  }
+}
+
 //+------------------------------------------------------------------+
 //| for every symbol tick function                                    |
 //+------------------------------------------------------------------+
@@ -161,68 +188,39 @@ void OnTick()
   CopyRates(_Symbol, _Period, 0, 1, candles);
   Print("[INFO]\tSending close price: ", candles[0].close);
 
-  int socket = SocketCreate();
-
-  //--- check the handle
+  int socket = ConnectSocket(Address, Port);
   if (socket != INVALID_HANDLE)
   {
-    //--- connect if all is well
-    if (SocketConnect(socket, Address, Port, 1000))
+    // Prepare the POST request
+    string endpoint = "/price/stream";
+
+    CJAVal jv;
+    jv["symbol"] = (string)_Symbol;
+    jv["period"] = (string)_Period;
+    jv["open"] = candles[0].open;
+    jv["high"] = candles[0].high;
+    jv["low"] = candles[0].low;
+    jv["close"] = candles[0].close;
+
+    // Serialize to string
+    string postData = jv.Serialize();
+
+    Print("[POST] Sending Data: ", postData);
+
+    //--- send POST request to the server
+    if (HTTPPostRequest(socket, endpoint, postData))
     {
-      Print("Established connection to ", Address, ":", Port);
-      string subject, issuer, serial, thumbprint;
-      datetime expiration;
+      Print("POST request sent");
 
-      //--- if connection is secured by the certificate, display its data
-      if (SocketTlsCertificate(socket, subject, issuer, serial, thumbprint, expiration))
-      {
-        Print("TLS certificate:");
-        Print("   Owner:  ", subject);
-        Print("   Issuer:  ", issuer);
-        Print("   Number:     ", serial);
-        Print("   Print: ", thumbprint);
-        Print("   Expiration: ", expiration);
-        ExtTLS = true;
-      }
-
-      // Prepare the POST request
-      string endpoint = "/price/stream";
-      // double close = candles[0].close; // Example close price
-      //                                  // string postData = '{"close":' + DoubleToString(close, _Digits) + '}';
-
-      CJAVal jv;
-      jv["symbol"] = (string)_Symbol;
-      jv["period"] = (string)_Period;
-      jv["open"] = candles[0].open;
-      jv["high"] = candles[0].high;
-      jv["low"] = candles[0].low;
-      jv["close"] = candles[0].close;
-
-      // Serialize to string
-      string postData = jv.Serialize();
-
-      Print("[POST] Sending Data: ", postData);
-
-      //--- send POST request to the server
-      if (HTTPPost(socket, endpoint, postData))
-      {
-        Print("POST request sent");
-
-        //--- read the response
-        if (!HTTPRecv(socket, 1000))
-          Print("Failed to get a response, error ", GetLastError());
-      }
-      else
-        Print("Failed to send POST request, error ", GetLastError());
+      //--- read the response
+      if (!HTTPRecv(socket, 1000))
+        Print("Failed to get a response, error ", GetLastError());
     }
     else
-      Print("Connection to ", Address, ":", Port, " failed, error ", GetLastError());
+      Print("Failed to send POST request, error ", GetLastError());
 
-    //--- close a socket after using
     SocketClose(socket);
   }
-  else
-    Print("Failed to create a socket, error ", GetLastError());
 }
 
 //+------------------------------------------------------------------+
@@ -236,5 +234,3 @@ void OnInit()
   // Set up the timer
   EventSetTimer(timerInterval);
 }
-
-//+------------------------------------------------------------------+
