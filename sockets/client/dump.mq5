@@ -267,3 +267,40 @@ void ScriptConfiguration()
 
     //   ActionDoneOrError(ERR_SUCCESS, __FUNCTION__, "ERR_SUCCESS");
 }
+
+void OnTick(string symbol)
+
+{
+
+    MqlTick tick;
+
+    CJAVal last;
+
+    CJAVal Data;
+
+    if (!SymbolInfoTick(symbol, tick))
+    {
+    }
+
+    Data[0] = (long)tick.time_msc;
+
+    Data[1] = (double)tick.bid;
+
+    Data[2] = (double)tick.ask;
+
+    last["symbol"] = symbol;
+
+    last["timeframe"] = (string)PERIOD_CURRENT;
+
+    last["data"].Set(Data);
+
+    string ticks = last.Serialize();
+
+    InformServerSocket(liveSocket, "/price/tick", ticks, "");
+
+    if (debug)
+    {
+        Print("New event on symbol: ", symbol);
+        Print("ticks: ", ticks);
+    }
+}
