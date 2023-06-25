@@ -648,3 +648,4 @@ void OnInit()
 // https://www.mql5.com/en/articles/159
 // https://www.mql5.com/en/forum/367260
 // https://www.mql5.com/en/articles/599
+// https://www.mql5.com/en/docs/constants/errorswarnings/errorcodes
