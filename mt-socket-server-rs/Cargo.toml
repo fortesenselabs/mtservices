@@ -1,5 +1,5 @@
 [package]
-name = "socket-server-rs"
+name = "mt-socket-server-rs"
 version = "0.1.0"
 authors = ["Ojietohamen Samuel <seekersoftec@gmail.com>"]
 edition = "2018"

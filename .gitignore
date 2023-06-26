@@ -8,5 +8,5 @@ samples
 
 .local.session.sql
 
-socket-server-rs/Cargo.lock
-socket-server-rs/target/
+mt-socket-server-rs/Cargo.lock
+mt-socket-server-rs/target/
