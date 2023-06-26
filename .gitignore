@@ -7,6 +7,3 @@ samples
 .\...config.json
 
 .local.session.sql
-
-mt-socket-server-rs/Cargo.lock
-mt-socket-server-rs/target/
