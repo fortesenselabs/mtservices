@@ -76,7 +76,22 @@ syncing an external api connection with your database [Google Search]
 
 https://gerardmistretta.medium.com/stocking-stuffers-how-react-can-be-used-to-navigate-the-stock-market-4cd1ad25970f
 
+https://github.com/apache
+
+http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/
+
+https://medium.com/@iamvsouza/processing-grandparents-realtime-data-d6b8c99e0b43
+
+https://github.com/DmitryPukhov/marketnewslstm
+
+https://github.com/DmitryPukhov/spark-trade
+
+[Visualization]
+https://echarts.apache.org/en/index.html
+
+https://superset.apache.org/
+
 https://github.com/tradingview
 
-[CHeck the Comments]
+[Check the Comments]
 https://www.youtube.com/watch?v=ZNA2BpssnhM&list=PLFYcVF7huJR_v-uaYPJFs5xttdi19f2OO
