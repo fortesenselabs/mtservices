@@ -142,11 +142,11 @@ bool HTTPRecv(int socket, uint timeout)
         int header_end = StringFind(result, "\r\n\r\n");
         if (header_end > 0)
         {
-          Print("HTTP header received:");
+          // Print("HTTP header received:"); // debug
           Print(StringSubstr(result, 0, header_end));
           //--- parse the body
           string body = StringSubstr(result, header_end + 4);
-          Print("HTTP body received:");
+          // Print("HTTP body received:"); // debug
           Print(body);
           return (true);
         }
@@ -202,7 +202,7 @@ void InformServerSocket(int socket, string endpoint, string data, string socketT
 {
   if (socket != INVALID_HANDLE)
   {
-    Print("[POST] Sending Data: ", data);
+    Print("[POST] Sending Data: ", data); // debug
     //--- send POST request to the server
     if (HTTPPostRequest(socket, endpoint, data))
     {
@@ -377,7 +377,7 @@ void SendTickData(string symbol)
   if (SymbolInfoTick(symbol, tick))
   {
     CJAVal Data;
-    Data[0] = (long)tick.time_msc;
+    Data[0] = (string)tick.time_msc;
     Data[1] = (double)tick.bid;
     Data[2] = (double)tick.ask;
 
@@ -421,7 +421,7 @@ void SendBarData(string symbol, string timeframe)
   if (CopyRates(symbol, period, 1, 1, rates) != -1 && CopySpread(symbol, period, 1, 1, spread) != -1)
   {
     CJAVal Data;
-    Data[0] = (long)rates[0].time;
+    Data[0] = "" + (long)rates[0].time;
     Data[1] = (double)rates[0].open;
     Data[2] = (double)rates[0].high;
     Data[3] = (double)rates[0].low;
@@ -542,9 +542,9 @@ void OnTimer()
     }
 
     // Send GET request to the server
-    if (HTTPGetRequest(pingSocket, "/", ""))
+    if (HTTPGetRequest(pingSocket, "/health", ""))
     {
-      Print("GET request sent");
+      // Print("GET request sent"); // debug
 
       // Read the response
       if (!HTTPRecv(pingSocket, 1024))

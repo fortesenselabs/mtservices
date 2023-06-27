@@ -25,6 +25,7 @@ func main() {
 	router.Use(limit.MaxAllowed(200))
 
 	router.GET("/", application.IndexController)
+	router.GET("/health", application.HealthStatusController)
 	router.POST("/api/price/stream/bar", application.BarPriceDataController)
 	router.POST("/api/price/stream/tick", application.TickPriceDataController)
 
@@ -47,3 +48,5 @@ func startServer(router http.Handler, serverPort string) {
 
 	}
 }
+
+// https://stackoverflow.com/questions/24987131/how-to-parse-unix-timestamp-to-time-time

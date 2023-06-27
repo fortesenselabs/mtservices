@@ -2,15 +2,15 @@ package application
 
 // Data
 type BarData struct {
-	Bar       [][]float64 `json:"bar"`
-	Symbol    string      `json:"symbol"`
-	Timeframe string      `json:"timeframe"`
+	Bar       [][]interface{} `json:"bar"`
+	Symbol    string          `json:"symbol"`
+	Timeframe string          `json:"timeframe"`
 }
 
 type TickData struct {
-	Symbol    string    `json:"symbol"`
-	Timeframe string    `json:"timeframe"`
-	Tick      []float64 `json:"tick"`
+	Symbol    string        `json:"symbol"`
+	Timeframe string        `json:"timeframe"`
+	Tick      []interface{} `json:"tick"`
 }
 
 // Events

@@ -3,6 +3,7 @@ package utils
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strings"
 	"time"
@@ -10,6 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
+
+func FloatToTime(number float64) time.Duration {
+	_, exponent := math.Frexp(number)
+	exponential := int(exponent) - 1
+
+	result := number * math.Pow(2, float64(exponential))
+	duration := time.Duration(result * float64(time.Millisecond))
+
+	return duration
+}
 
 // Get GCP Project ID
 func GetGCPProjectID() string {

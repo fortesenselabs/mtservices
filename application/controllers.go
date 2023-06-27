@@ -16,6 +16,14 @@ func IndexController(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+func HealthStatusController(c *gin.Context) {
+	response := gin.H{
+		"message": "available",
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
 func BarPriceDataController(c *gin.Context) {
 	var payload BarEvent
 	if err := c.ShouldBindJSON(&payload); err != nil {
@@ -23,6 +31,7 @@ func BarPriceDataController(c *gin.Context) {
 		return
 	}
 
+	// time(timestamp) => time(timestamp) * 1e9
 	// for data.bar [time(timestamp), open, high, low, close, tick_volume, spread, real_volume]
 	// data, ok := payload.Data.(map[string]BarData)
 	// if !ok {
@@ -44,6 +53,14 @@ func BarPriceDataController(c *gin.Context) {
 
 	logger.Info(fmt.Sprintf("[BAR] Data Received: %v\n", response))
 
+	// time_msc, _ := payload.Data.Bar[0][0].(string)
+	// i, err := strconv.ParseInt(time_msc, 10, 64)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// timestamp := time.Unix(i, 0)
+	logger.Info(fmt.Sprintf("Original Timestamp: %v | Processed Time: %v\n", payload.Data.Bar[0][0], payload.Data.Bar[0][0]))
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -54,6 +71,7 @@ func TickPriceDataController(c *gin.Context) {
 		return
 	}
 
+	// time(timestamp) => time(timestamp) * 1e12
 	// for data.tick [time(timestamp), bid, ask]
 	// data, ok := payload.Data.(map[string]interface{})
 	// if !ok {
@@ -74,6 +92,14 @@ func TickPriceDataController(c *gin.Context) {
 	}
 
 	logger.Info(fmt.Sprintf("[TICK] Data Received: %v\n", response))
+
+	// time_msc, _ := payload.Data.Tick[0].(string)
+	// i, err := strconv.ParseInt(time_msc, 10, 64)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// timestamp := time.Unix(i, 0)
+	logger.Info(fmt.Sprintf("Original Timestamp: %v | Processed Time: %v\n", payload.Data.Tick[0], payload.Data.Tick[0]))
 
 	c.JSON(http.StatusOK, response)
 }
