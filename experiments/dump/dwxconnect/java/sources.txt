@@ -1,4 +1,0 @@
-./api/Helpers.java
-./api/EventHandler.java
-./api/Client.java
-./DWXExampleClient.java

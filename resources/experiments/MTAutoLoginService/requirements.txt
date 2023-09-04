@@ -1,0 +1,32 @@
+numpy>=1.23.*
+pandas>=1.4.*
+
+pytz
+click
+textblob
+apscheduler
+MetaTrader5
+telegram_messages_dump
+
+numpy>=1.23.*
+pandas>=1.4.*
+scikit-learn>=1.*
+statsmodels>=0.13.*
+patsy>=0.5.*
+apscheduler>=3.9.*  # "conda install -c conda-forge apscheduler"
+
+lightgbm>=3.3.*  # For Linux, glibc >= 2.14 is required. "conda install -c conda-forge lightgbm"
+tensorflow>=2.9.*  # pip install --upgrade tensorflow
+#keras  # pip install --upgrade keras
+#pytorch # conda install pytorch torchvision cpuonly -c pytorch
+#fastai # pip install fastai
+tsfresh  # For calculated features
+
+# python-binance>=1.0.*  # pip install python-binance
+# yfinance  # if yahoo quotes are going to be used
+#python-snappy  # Compression for fastparquet (gzip is always available)
+#fastparquet  # "conda install -c conda-forge fastparquet"
+
+# ejtraderMT
+# mindsdb
+git+https://github.com/FortesenseLabs/pymt5adapter.git

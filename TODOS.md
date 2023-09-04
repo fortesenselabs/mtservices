@@ -6,9 +6,11 @@ Keep track of features, and bugs to be implemneted or fixed respectively
 
 ## Features
 
+- Add cache mechanism to the MQL clients and the data ingestion server
+
 ## Implementations
 
-- Use Task queue to properlly handle the historical data function running in the background
+- Use Task queue to properly handle the historical data function running in the background
 - make sure the seleccted symbols are actually the ones be subscribed to
 - Notifications
 - Investor (using both the exchange inteface and selected strategies to make decisions)
