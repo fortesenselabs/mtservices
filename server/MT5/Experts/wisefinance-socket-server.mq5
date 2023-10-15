@@ -333,7 +333,7 @@ void ProcessClientRequest(SOCKET64 clientSocket)
     return;
   }
 
-  HandleGetRequest(clientSocket, "/");
+  TickRequestHandler(clientSocket, "/");
   // // Convert the received data to a string
   // string requestData = CharArrayToString(buffer, 0, bytesRead);
 
@@ -364,8 +364,8 @@ void ProcessClientRequest(SOCKET64 clientSocket)
   closesocket(clientSocket);
 }
 
-// Handle a GET request
-void HandleGetRequest(SOCKET64 clientSocket, string endpoint)
+// Handle Tick data request [GET request]
+void TickRequestHandler(SOCKET64 clientSocket, string endpoint)
 {
   // GET request handling code here
   // send an appropriate response back to the client
