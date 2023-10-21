@@ -17,7 +17,7 @@
 
 #include <wiseFinanceMT/Json.mqh>
 #include <wiseFinanceMT/OnTickSymbol.mqh>
-#include <wisefinanceMT/socketlib.mqh>
+#include <wisefinanceMT/Socketlib.mqh>
 
 // Set host and Port
 input string HOST = "0.0.0.0";
@@ -26,12 +26,20 @@ input ushort PORT = 9000; // int
 // Global variables
 
 // Sockets
-SOCKET64 server = INVALID_SOCKET64;
-SOCKET64 clients[1024];
+
+SOCKET64 serverSocket = INVALID_SOCKET64;
+struct ClientSocket
+{
+  SOCKET64 socket;
+  string requestData;
+  string responseData;
+};
+
+ClientSocket clients[1024];
 
 // Timer interval in milliseconds
 int timerInterval = 3 * 1000;
-bool debug = false;
+bool debug = true;
 
 // Variables for handling price data stream
 struct SymbolSubscription
@@ -43,11 +51,14 @@ struct SymbolSubscription
 SymbolSubscription symbolSubscriptions[];
 int symbolSubscriptionCount = 0;
 
+datetime tm;
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 void OnInit()
 {
+  EventSetMillisecondTimer(timerInterval);
+
   // Start the server socket
   StartServer(HOST, PORT);
 }
@@ -62,6 +73,8 @@ void OnDeinit(const int reason)
 
   // Print a message to the console
   printf("Server Socket connection closed\n");
+
+  EventKillTimer();
 }
 
 //+------------------------------------------------------------------+
@@ -80,8 +93,8 @@ void StartServer(string addr, ushort port)
   }
 
   // Create a socket
-  server = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-  if (server == INVALID_SOCKET64)
+  serverSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+  if (serverSocket == INVALID_SOCKET64)
   {
     Print("-Create failed error: " + WSAErrorDescript(WSAGetLastError()));
     CloseServer();
@@ -99,7 +112,7 @@ void StartServer(string addr, ushort port)
   addrin.sin_port = htons(port);
   ref_sockaddr ref;
   ref.in = addrin;
-  if (bind(server, ref.ref, sizeof(addrin)) == SOCKET_ERROR)
+  if (bind(serverSocket, ref.ref, sizeof(addrin)) == SOCKET_ERROR)
   {
     int err = WSAGetLastError();
     if (err != WSAEISCONN)
@@ -112,7 +125,7 @@ void StartServer(string addr, ushort port)
 
   // Set to non-blocking mode
   int non_block = 1;
-  res = ioctlsocket(server, (int)FIONBIO, non_block);
+  res = ioctlsocket(serverSocket, (int)FIONBIO, non_block);
   if (res != NO_ERROR)
   {
     Print("ioctlsocket failed error: " + string(res));
@@ -121,7 +134,7 @@ void StartServer(string addr, ushort port)
   }
 
   // Listen on the port and accept client connections
-  if (listen(server, SOMAXCONN) == SOCKET_ERROR)
+  if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR)
   {
     Print("Listen failed with error: ", WSAErrorDescript(WSAGetLastError()));
     CloseServer();
@@ -132,48 +145,44 @@ void StartServer(string addr, ushort port)
 }
 
 //+------------------------------------------------------------------+
-//| Send HTTP response                                               |
+//| Send Socket response                                               |
 //+------------------------------------------------------------------+
-int HTTPSend(SOCKET64 socket, string data)
+int SocketSend(ClientSocket &client)
 {
   uchar response[];
-  int len = StringToCharArray(data, response) - 1;
+  int len = StringToCharArray(client.responseData, response) - 1;
   if (len < 0)
     return 0;
 
+  // TODO: examine thoroughly
   // Send the HTTP response back to the client
-  return send(socket, response, ArraySize(response), 0);
+  return send(client.socket, response, ArraySize(response), 0);
 }
 
 //+------------------------------------------------------------------+
-//| Read HTTP request                                                |
+//| Read Socket request                                                |
 //+------------------------------------------------------------------+
-int HTTPRecv(SOCKET64 socket)
+ClientSocket SocketRecv(ClientSocket &client)
 {
-  if (socket != INVALID_SOCKET64)
+
+  if (client.socket != INVALID_SOCKET64)
   {
     char buf[1024];
-    int request_len = recv(socket, buf, sizeof(buf), 0);
+    int request_len = recv(client.socket, buf, sizeof(buf), 0);
 
     if (request_len > 0)
     {
       uchar data[];
       ArrayCopy(data, buf, ArraySize(data), 0, request_len);
-      string body = CharArrayToString(data);
+      client.requestData = CharArrayToString(data);
       // Process received data here
-      // Print("Received Data: ", body);
-
-      // Example HTTP response
-      // string httpResponseData = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: 19\r\n\r\n<html><body>Hello</body></html>";
-
-      // Send the HTTP response back to the client
-      // HTTPSend(socket, httpResponseData);
+      // Print("Received Data: ", client.requestData);
     }
     else if (request_len == 0)
     {
       // The client has disconnected
-      closesocket(socket);
-      socket = INVALID_SOCKET64;
+      closesocket(client.socket);
+      client.socket = INVALID_SOCKET64;
     }
     else
     {
@@ -182,190 +191,93 @@ int HTTPRecv(SOCKET64 socket)
       if (err != WSAEWOULDBLOCK)
       {
         Print("recv failed with error: %d\n", err);
-        closesocket(socket);
-        socket = INVALID_SOCKET64;
+        closesocket(client.socket);
+        client.socket = INVALID_SOCKET64;
       }
     }
   }
 
-  return socket;
-}
-
-//+------------------------------------------------------------------+
-//| Parse GET Request                                                |
-//+------------------------------------------------------------------+
-bool ParseGetRequest(string getRequest, string &endpoint, string &requestData)
-{
-  // Initialize the output variables
-  endpoint = "";
-  requestData = "";
-
-  // Split the GET request into lines
-  string requestLines[];
-  int lineCount = StringSplit(getRequest, "\r\n", requestLines);
-
-  if (lineCount < 1)
-  {
-    Print("Invalid GET request: No lines found");
-    return (false);
-  }
-
-  // The first line of the GET request contains the endpoint
-  string firstLine = requestLines[0];
-
-  // Find the position of the first space character (indicating the endpoint)
-  int spacePos = StringFind(firstLine, " ");
-
-  if (spacePos < 0)
-  {
-    Print("Invalid GET request: Missing space character");
-    return (false);
-  }
-
-  // Extract the endpoint
-  endpoint = StringSubstr(firstLine, spacePos + 1);
-
-  // Find the position of the first space character after the endpoint (indicating the HTTP version)
-  int secondSpacePos = StringFind(endpoint, " ");
-
-  if (secondSpacePos < 0)
-  {
-    Print("Invalid GET request: Missing space character after the endpoint");
-    return (false);
-  }
-
-  // Remove the HTTP version part from the endpoint
-  endpoint = StringSubstr(endpoint, 0, secondSpacePos);
-
-  // If there are more lines in the request, they may contain data
-  if (lineCount > 1)
-  {
-    // Join the remaining lines to extract any request data
-    for (int i = 1; i < lineCount; i++)
-    {
-      requestData += requestLines[i];
-      if (i < lineCount - 1)
-      {
-        requestData += "\r\n"; // Restore newline characters
-      }
-    }
-  }
-
-  return (true);
-}
-
-//+------------------------------------------------------------------+
-//| Parse POST Request                                               |
-//+------------------------------------------------------------------+
-bool ParsePostRequest(string postRequest, string &endpoint, string &contentType, string &requestData)
-{
-  // Initialize the output variables
-  endpoint = "";
-  contentType = "";
-  requestData = "";
-
-  // Split the POST request into lines
-  string requestLines[];
-  int lineCount = StringSplit(postRequest, "\r\n", requestLines);
-
-  if (lineCount < 1)
-  {
-    Print("Invalid POST request: No lines found");
-    return (false);
-  }
-
-  // The first line of the POST request contains the endpoint
-  string firstLine = requestLines[0];
-
-  // Find the position of the first space character (indicating the endpoint)
-  int spacePos = StringFind(firstLine, " ");
-
-  if (spacePos < 0)
-  {
-    Print("Invalid POST request: Missing space character");
-    return (false);
-  }
-
-  // Extract the endpoint
-  endpoint = StringSubstr(firstLine, spacePos + 1);
-
-  // Find the Content-Type header
-  for (int i = 1; i < lineCount; i++)
-  {
-    string line = requestLines[i];
-    if (StringFind(line, "Content-Type:") == 0)
-    {
-      contentType = StringSubstr(line, StringLen("Content-Type:") + 1);
-      break;
-    }
-  }
-
-  // If there are more lines in the request, they may contain data
-  if (lineCount > 1)
-  {
-    // Join the remaining lines to extract the request data
-    for (int i = 1; i < lineCount; i++)
-    {
-      if (StringLen(requestData) > 0)
-      {
-        requestData += "\r\n"; // Restore newline characters
-      }
-      requestData += requestLines[i];
-    }
-  }
-
-  return (true);
+  return client;
 }
 
 //+------------------------------------------------------------------+
 //| Process Client Request and Respond                                |
 //+------------------------------------------------------------------+
-void ProcessClientRequest(SOCKET64 clientSocket)
+void ProcessClientRequest(ClientSocket &client)
 {
-  char buffer[4096];
+  // char buffer[4096];
   // int bytesRead = recv(clientSocket, buffer, sizeof(buffer), 0);
-  int bytesRead = HTTPRecv(clientSocket);
+  // client = SocketRecv(client);
 
-  if (bytesRead <= 0)
+  if (client.socket <= 0)
   {
     // Error or connection closed
-    closesocket(clientSocket);
+    closesocket(client.socket);
     return;
   }
 
-  TickRequestHandler(clientSocket, "/");
-  // // Convert the received data to a string
-  // string requestData = CharArrayToString(buffer, 0, bytesRead);
-
-  // // Determine if it's a GET or POST request
-  // if (StringFind(requestData, "GET ") == 0)
-  // {
-  //   // It's a GET request
-  //   string getRequest = "/";
-  //   string getEndpoint;
-  //   if (ParseGetRequest("GET", getEndpoint, requestData))
-  //   {
-  //     // Handle the GET request
-  //     HandleGetRequest(clientSocket, getEndpoint);
-  //   }
-  // }
-  // else if (StringFind(requestData, "POST ") == 0)
-  // {
-  //   // It's a POST request
-  //   string postRequest, postEndpoint, postContentType, postData;
-  //   if (ParsePostRequest(requestData, postEndpoint, postContentType, postData))
-  //   {
-  //     // Handle the POST request
-  //     HandlePostRequest(clientSocket, postEndpoint, postContentType, postData);
-  //   }
-  // }
+  RequestHandler(client);
 
   // Close the client socket
-  closesocket(clientSocket);
+  // closesocket(client.socket);
 }
 
 // Handle Tick data request [GET request]
-void TickRequestHandler(SOCKET64 clientSocket, string endpoint)
+void RequestHandler(ClientSocket &client)
+{
+  CJAVal msg;
+
+  if (!msg.Deserialize(client.requestData))
+  {
+    Print("Failed to deserialize request command");
+  }
+
+  Print("Request: ", client.requestData);
+
+  string action = msg["action"].ToStr();
+  if (action == "ACCOUNT")
+  {
+    GetAccountInfo(client);
+  }
+  else
+  {
+    GetTick(client);
+  }
+}
+
+//+------------------------------------------------------------------+
+//| Account information                                              |
+//+------------------------------------------------------------------+
+void GetAccountInfo(ClientSocket &client)
+{
+
+  CJAVal info;
+
+  info["error"] = false;
+  info["broker"] = AccountInfoString(ACCOUNT_COMPANY);
+  info["currency"] = AccountInfoString(ACCOUNT_CURRENCY);
+  info["server"] = AccountInfoString(ACCOUNT_SERVER);
+  info["trading_allowed"] = TerminalInfoInteger(TERMINAL_TRADE_ALLOWED);
+  info["bot_trading"] = AccountInfoInteger(ACCOUNT_TRADE_EXPERT);
+  info["balance"] = AccountInfoDouble(ACCOUNT_BALANCE);
+  info["equity"] = AccountInfoDouble(ACCOUNT_EQUITY);
+  info["margin"] = AccountInfoDouble(ACCOUNT_MARGIN);
+  info["margin_free"] = AccountInfoDouble(ACCOUNT_MARGIN_FREE);
+  info["margin_level"] = AccountInfoDouble(ACCOUNT_MARGIN_LEVEL);
+  info["time"] = string(tm); // sending time for localtime dataframe
+
+  string t = info.Serialize();
+  if (debug)
+    Print(t);
+
+  client.responseData = t;
+  SocketSend(client);
+}
+
+//+------------------------------------------------------------------+
+//| Get Tick                                                       |
+//+------------------------------------------------------------------+
+void GetTick(ClientSocket &client)
 {
   // GET request handling code here
   // send an appropriate response back to the client
@@ -393,14 +305,16 @@ void TickRequestHandler(SOCKET64 clientSocket, string endpoint)
 
     string jsonStr = jsonData.Serialize();
     // InformServerSocket(liveSocket, "/api/price/stream/tick", jsonStr, "TICK");
-    HTTPSend(clientSocket, jsonStr);
-    Print("[TICK] Sent Tick Data for ", symbol, " (", timeframe, ")");
+    client.responseData = jsonStr;
+    SocketSend(client);
 
+    Print("[TICK] Sent Tick Data for ", symbol, " (", timeframe, ")");
     // Debug
     if (debug)
     {
       Print("New event on symbol: ", symbol);
       Print("data: ", jsonStr);
+      // Sleep(1000);
     }
   }
   else
@@ -409,19 +323,12 @@ void TickRequestHandler(SOCKET64 clientSocket, string endpoint)
   }
 }
 
-// Handle a POST request
-void HandlePostRequest(int clientSocket, string endpoint, string contentType, string data)
-{
-  // POST request handling code here
-  // send an appropriate response back to the client
-}
-
 //+------------------------------------------------------------------+
 //| AcceptClients                                                        |
 //+------------------------------------------------------------------+
 void AcceptClients()
 {
-  if (server == INVALID_SOCKET64)
+  if (serverSocket == INVALID_SOCKET64)
   {
     return;
   }
@@ -431,38 +338,32 @@ void AcceptClients()
 
   ref_sockaddr ch;
   int len = sizeof(ref_sockaddr);
-  client = accept(server, ch.ref, len);
+  client = accept(serverSocket, ch.ref, len);
   if (client != INVALID_SOCKET64)
   {
     // Add the new client socket to the list of clients
     for (int i = 0; i < ArraySize(clients); i++)
     {
-      if (clients[i] == INVALID_SOCKET64)
+      if (clients[i].socket == INVALID_SOCKET64)
       {
-        clients[i] = client;
+        clients[i].socket = client;
+        clients[i] = SocketRecv(clients[i]);
         break;
       }
     }
   }
-}
 
-//+------------------------------------------------------------------+
-//| ProcessClientsData                                                        |
-//+------------------------------------------------------------------+
-void ProcessClientsData()
-{
-  if (ArraySize(clients) == 0)
-  {
-    Print("Waiting for Connections!!!");
-    return;
-  }
-
+  // Check for data from any of the clients
   for (int i = 0; i < ArraySize(clients); i++)
   {
-    clients[i] = HTTPRecv(clients[i]);
-    //
-    ProcessClientRequest(clients[i]);
+    if (clients[i].socket != INVALID_SOCKET64)
+    {
+      clients[i] = SocketRecv(clients[i]);
+      ProcessClientRequest(clients[i]);
+    }
   }
+
+  Print("Waiting for Connections!!!");
 }
 
 //+------------------------------------------------------------------+
@@ -473,18 +374,18 @@ void CloseServer()
   // Close all client sockets
   for (int i = 0; i < ArraySize(clients); i++)
   {
-    if (clients[i] != INVALID_SOCKET64)
+    if (clients[i].socket != INVALID_SOCKET64)
     {
-      closesocket(clients[i]);
-      clients[i] = INVALID_SOCKET64;
+      closesocket(clients[i].socket);
+      clients[i].socket = INVALID_SOCKET64;
     }
   }
 
   // Close the server socket
-  if (server != INVALID_SOCKET64)
+  if (serverSocket != INVALID_SOCKET64)
   {
-    closesocket(server);
-    server = INVALID_SOCKET64;
+    closesocket(serverSocket);
+    serverSocket = INVALID_SOCKET64;
   }
 
   // Clean up Winsock
@@ -498,11 +399,19 @@ void CloseServer()
 //+------------------------------------------------------------------+
 void OnTick(string symbol)
 {
+  //
+}
+
+//+------------------------------------------------------------------+
+//| Expert timer function                                            |
+//+------------------------------------------------------------------+
+void OnTimer()
+{
+
+  tm = TimeTradeServer();
+
   // Accept any new incoming connections
   AcceptClients();
-
-  // Check for data from any of the clients
-  ProcessClientsData();
 }
 
 //+------------------------------------------------------------------+
