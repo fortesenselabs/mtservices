@@ -28,6 +28,12 @@ Goto http://localhost:8080/
 
 ## Resources
 
+- https://github.com/JafferWilson/MT4-Ticks-To-MT5/ (*) - socket server, also uses ws2_32.dll (https://learn.microsoft.com/en-us/windows/win32/winsock/winsock-functions)
+- https://github.com/TheSnowGuru/PyTrader-python-mt4-mt5-trading-api-connector-drag-n-drop/ (*) - ws2_32.dll
+- https://github.com/mikha-dev/mt5-rest (*)
+- https://github.com/mikha-dev/mt4-websockets-server (*)
+- https://github.com/elugovoy/MQLMySQL-Project (*)
+- https://www.mql5.com/en/articles/12042 (*)
 - https://github.com/ConSol/docker-headless-vnc-container
 - https://github.com/novnc/noVNC#quick-start
 - https://hub.docker.com/r/fredblgr/ubuntu-novnc
@@ -200,4 +206,9 @@ WHERE t.datetime > LATEST;
 
 -- DELETE MODEL
 -- DROP PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_m30;
+```
+
+**Notes:**
+```txt
+
 ```

@@ -1,0 +1,14 @@
+x64
+packages
+.vs
+*.suo
+*.user
+*.userosscache
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
