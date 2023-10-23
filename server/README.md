@@ -13,161 +13,24 @@ git clone <repo>
 
 ## Commands
 
-POST /sub - setup web hook. options: callback_url and callback_format (json or x-form)
+- CONFIG: ScriptConfiguration
+- ACCOUNT: GetAccountInfo [tested]
+- BALANCE: GetBalanceInfo [tested]
+- HISTORY: HistoryInfo [tested]
+- TRADE: TradingRequest [testing]
+- POSITIONS: GetPositions [tested]
+- ORDERS: GetOrders [tested]
+- RESET: ResetSubscriptionsAndIndicators
 
-GET /symbols/{name}/info - get symbol information.
+## TODOs
 
-GET /symbols/{name}/tick - get symbol ask/bid prices.
-
-GET /account/info - get account details, number of orders, number of positions
-
-GET /positions - returns list of positions
-
-GET /positions/{id} - return position by id
-
-GET /deals?offset={offset}&limit={limit} - returns list of deals/transactions
-
-GET /deals/{id} - return deal by id
-
-GET /orders - returns list of orders
-
-GET /orders/{id} - return order by id
-
-GET /history - returns list of history orders
-
-GET /history/{id} - return order history by id
-
-POST /trade - open position, details in POST body
-
-# Example of POST body for trade command
-
-## Open Buy
-
-```json
-{
-  "symbol": "EURUSD",
-  "actionType": "ORDER_TYPE_BUY",
-  "volume": 0.1,
-  "stoploss": 1.3455,
-  "takeprofit": 1.33333,
-  "comment": "test buy"
-}
-```
-
-## Open Sell
-
-```json
-{
-  "symbol": "EURUSD",
-  "actionType": "ORDER_TYPE_SELL",
-  "volume": 0.1,
-  "stoploss": 1.3455,
-  "takeprofit": 1.33333,
-  "comment": "test buy"
-}
-```
-
-## Open Buy Limit
-
-```json
-{
-  "symbol": "EURUSD",
-  "actionType": "ORDER_TYPE_BUY_LIMIT",
-  "price": 1.4444,
-  "volume": 0.1,
-  "stoploss": 1.3455,
-  "takeprofit": 1.33333,
-  "comment": "test buy limit"
-}
-```
-
-## Open Sell Limit
-
-```json
-{
-  "symbol": "EURUSD",
-  "actionType": "ORDER_TYPE_SELL_LIMIT",
-  "price": 1.4444,
-  "volume": 0.1,
-  "stoploss": 1.3455,
-  "takeprofit": 1.33333,
-  "comment": "test sell limit"
-}
-```
-
-## Open Buy Stop
-
-```json
-{
-  "symbol": "EURUSD",
-  "actionType": "ORDER_TYPE_BUY_STOP",
-  "price": 1.4444,
-  "volume": 0.1,
-  "stoploss": 1.3455,
-  "takeprofit": 1.33333,
-  "comment": "test buy stop"
-}
-```
-
-## Open Sell Stop
-
-```json
-{
-  "symbol": "EURUSD",
-  "actionType": "ORDER_TYPE_SELL_STOP",
-  "price": 1.4444,
-  "volume": 0.1,
-  "stoploss": 1.3455,
-  "takeprofit": 1.33333,
-  "comment": "test sell stop"
-}
-```
-
-## Position Close by ID
-
-```json
-{ "actionType": "POSITION_CLOSE_ID", "id": 1212121 }
-```
-
-## Order Cancel
-
-```json
-{ "actionType": "ORDER_CANCEL", "id": 1212121 }
-```
-
-## Order Cancel
-
-```json
-{ "actionType": "POSITION_PARTIAL", "id": 1212121, "volume": 0.1 }
-```
-
-# Examples of /trade output
-
-```json
-{
-  "error": 10018,
-  "desription": "TRADE_RETCODE_MARKET_CLOSED",
-  "order_id": 0,
-  "volume": 0,
-  "price": 0,
-  "bid": 0,
-  "ask": 0,
-  "function": "CRestApi::tradingModule"
-}
-```
-
-```json
-{
-  "error": 10009,
-  "desription": "TRADE_RETCODE_DONE",
-  "order_id": 405895526,
-  "volume": 0.1,
-  "price": 1.13047,
-  "bid": 1.13038,
-  "ask": 1.13047,
-  "function": "CRestApi::tradingModule"
-}
-```
+- Add and test live stream (price and event)
+- Persistent history Data on SQLite Multithreading
+- Read from Database
+- test Modify order (client)
+- test Modify position (client)
+- test Stop Orders (client)
+- test Limit Orders (client)
 
 ## DUMP
 
@@ -250,4 +113,199 @@ POST /trade - open position, details in POST body
 
       // Send the HTTP response back to the client
       // SocketSend(client.socket, httpResponseData);
+
+
+//+------------------------------------------------------------------+
+//| Trading module                                                   |
+//+------------------------------------------------------------------+
+// void TradingModuleHandler(ClientSocket &client, RequestData &rdata)
+// {
+//   mControl.mResetLastError();
+//   CTrade trade;
+
+//   SymbolInfoString(rdata.symbol, SYMBOL_DESCRIPTION);
+//   CheckError(client, __FUNCTION__);
+
+//   // Order expiration section
+//   ENUM_ORDER_TYPE_TIME exp_type = ORDER_TIME_GTC;
+//   datetime expiration = 0;
+//   if (rdata.expiration != 0)
+//   {
+//     exp_type = ORDER_TIME_SPECIFIED;
+//     expiration = rdata.expiration;
+//   }
+
+//   // Market orders
+//   if (rdata.actionType == "ORDER_TYPE_BUY" || rdata.actionType == "ORDER_TYPE_SELL")
+//   {
+//     ENUM_ORDER_TYPE orderType = ORDER_TYPE_BUY;
+//     price = SymbolInfoDouble(rdata.symbol, SYMBOL_ASK);
+//     if (rdata.actionType == "ORDER_TYPE_SELL")
+//     {
+//       orderType = ORDER_TYPE_SELL;
+//       price = SymbolInfoDouble(rdata.symbol, SYMBOL_BID);
+//     }
+
+//     if (trade.PositionOpen(rdata.symbol, orderType, rdata.volume, rdata.price, rdata.stoploss, rdata.takeprofit, rdata.comment))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+
+//   // Pending orders
+//   else if (rdata.actionType == "ORDER_TYPE_BUY_LIMIT" || rdata.actionType == "ORDER_TYPE_SELL_LIMIT" || rdata.actionType == "ORDER_TYPE_BUY_STOP" || rdata.actionType == "ORDER_TYPE_SELL_STOP")
+//   {
+//     if (rdata.actionType == "ORDER_TYPE_BUY_LIMIT")
+//     {
+//       if (trade.BuyLimit(volume, price, symbol, SL, TP, ORDER_TIME_GTC, expiration, comment))
+//       {
+//         OrderDoneOrError(client, false, __FUNCTION__, trade);
+//         return;
+//       }
+//     }
+//     else if (rdata.actionType == "ORDER_TYPE_SELL_LIMIT")
+//     {
+//       if (trade.SellLimit(volume, price, symbol, SL, TP, ORDER_TIME_GTC, expiration, comment))
+//       {
+//         OrderDoneOrError(client, false, __FUNCTION__, trade);
+//         return;
+//       }
+//     }
+//     else if (rdata.actionType == "ORDER_TYPE_BUY_STOP")
+//     {
+//       if (trade.BuyStop(volume, price, symbol, SL, TP, ORDER_TIME_GTC, expiration, comment))
+//       {
+//         OrderDoneOrError(client, false, __FUNCTION__, trade);
+//         return;
+//       }
+//     }
+//     else if (rdata.actionType == "ORDER_TYPE_SELL_STOP")
+//     {
+//       if (trade.SellStop(volume, price, symbol, SL, TP, ORDER_TIME_GTC, expiration, comment))
+//       {
+//         OrderDoneOrError(client, false, __FUNCTION__, trade);
+//         return;
+//       }
+//     }
+//   }
+//   // Position modify
+//   else if (rdata.actionType == "POSITION_MODIFY")
+//   {
+//     if (trade.PositionModify(idNimber, SL, TP))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+//   // Position close partial
+//   else if (rdata.actionType == "POSITION_PARTIAL")
+//   {
+//     if (trade.PositionClosePartial(idNimber, volume))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+//   // Position close by id
+//   else if (rdata.actionType == "POSITION_CLOSE_ID")
+//   {
+//     if (trade.PositionClose(idNimber))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+//   // Position close by symbol
+//   else if (rdata.actionType == "POSITION_CLOSE_SYMBOL")
+//   {
+//     if (trade.PositionClose(symbol))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+//   // Modify pending order
+//   else if (rdata.actionType == "ORDER_MODIFY")
+//   {
+//     if (trade.OrderModify(idNimber, price, SL, TP, ORDER_TIME_GTC, expiration))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+//   // Cancel pending order
+//   else if (rdata.actionType == "ORDER_CANCEL")
+//   {
+//     if (trade.OrderDelete(idNimber))
+//     {
+//       OrderDoneOrError(client, false, __FUNCTION__, trade);
+//       return;
+//     }
+//   }
+//   // Action type dosen't exist
+//   else
+//   {
+//     mControl.mSetUserError(65538, GetErrorID(65538));
+//     CheckError(client, __FUNCTION__);
+//   }
+
+//   // This part of the code runs if order was not completed
+//   OrderDoneOrError(client, true, __FUNCTION__, trade);
+// }
+
+
+
+// void OnTradeTransaction(const MqlTradeTransaction &trans,
+//                         const MqlTradeRequest &request,
+//                         const MqlTradeResult &result)
+// {
+//   ENUM_TRADE_TRANSACTION_TYPE trans_type = trans.type;
+//   switch (trans.type)
+//   {
+//   case TRADE_TRANSACTION_REQUEST:
+//   {
+//     CJAVal data, req, res;
+
+//     req["action"] = EnumToString(request.action);
+//     req["order"] = (int)request.order;
+//     req["symbol"] = (string)request.symbol;
+//     req["volume"] = (double)request.volume;
+//     req["price"] = (double)request.price;
+//     req["stoplimit"] = (double)request.stoplimit;
+//     req["sl"] = (double)request.sl;
+//     req["tp"] = (double)request.tp;
+//     req["deviation"] = (int)request.deviation;
+//     req["type"] = EnumToString(request.type);
+//     req["type_filling"] = EnumToString(request.type_filling);
+//     req["type_time"] = EnumToString(request.type_time);
+//     req["expiration"] = (int)request.expiration;
+//     req["comment"] = (string)request.comment;
+//     req["position"] = (int)request.position;
+//     req["position_by"] = (int)request.position_by;
+
+//     res["retcode"] = (int)result.retcode;
+//     res["result"] = (string)GetRetcodeID(result.retcode);
+//     res["deal"] = (int)result.order;
+//     res["order"] = (int)result.order;
+//     res["volume"] = (double)result.volume;
+//     res["price"] = (double)result.price;
+//     res["comment"] = (string)result.comment;
+//     res["request_id"] = (int)result.request_id;
+//     res["retcode_external"] = (int)result.retcode_external;
+
+//     data["request"].Set(req);
+//     data["result"].Set(res);
+
+//     string t = data.Serialize();
+//     client.responseData = t;
+//     SocketSend(streamSocket, t);
+//   }
+//   break;
+//   default:
+//   {
+//   }
+//   break;
+//   }
+// }
 ```
