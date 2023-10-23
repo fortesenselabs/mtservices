@@ -517,7 +517,7 @@ void GetAccountInfo()
    string t = info.Serialize();
    if (debug)
       Print(t);
-      
+
    InformClientSocket(dataSocket, t);
 }
 
