@@ -784,7 +784,7 @@ if __name__ == "__main__":
     # Account information
     accountInfo = api.accountInfo()
     print(accountInfo)
-    print(api.balance())
+    # print(api.balance())
 
     # History from Date to Date
     # symbol = "Step Index"
@@ -833,7 +833,7 @@ if __name__ == "__main__":
     # Limit Orders
     # symbol, volume, stoploss, takeprofit, price, deviation
     # api.buy_limit("Step Index", 0.1, 8300.0, 8500.0, 8363.2, 5)
-    # api.sellLimit("Step Index", 0.1, 1.20, 1.17, 1.19, 5)
+    # api.sell_limit("Step Index", 0.1, 1.20, 1.17, 1.19, 5)
 
     # Stop Orders
     # symbol, volume, stoploss, takeprofit, price, deviation

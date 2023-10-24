@@ -4,12 +4,12 @@ name: Compile
 on:
   pull_request:
     paths:
-      - '**.mq?'
-      - '.github/workflows/compile.yml'
+      - "**.mq?"
+      - ".github/workflows/compile.yml"
   push:
     paths:
-      - '**.mq?'
-      - '.github/workflows/compile.yml'
+      - "**.mq?"
+      - ".github/workflows/compile.yml"
 
 jobs:
   Compile:
@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          submodules: 'recursive'
+          submodules: "recursive"
       - name: Compiles (MQL4)
         uses: fx31337/mql-compile-action@master
         with:
@@ -26,5 +26,5 @@ jobs:
       - name: Compiles (MQL5)
         uses: fx31337/mql-compile-action@master
         with:
-          path: MT5.mq5
+          path: server/MQL5/wisefinance-socket-server.mq5
           verbose: true
