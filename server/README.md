@@ -31,6 +31,8 @@ git clone <repo>
 - test Modify position (client)
 - test Stop Orders (client)
 - test Limit Orders (client)
+- fix timeframe error in histotical data collection e.g D1 for a year is suppose to be 365, but it is 262000+
+
 
 ## References
 

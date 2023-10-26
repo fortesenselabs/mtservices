@@ -1,6 +1,30 @@
 # INFO
 
-## Links
+strategy: > N pips = true else false (binary classification) |
+(use windowing, where the N pips might not be gotten in 1 candles but over multiple candles)
+N could be 20
+
+### Data Processing
+
+- https://www.linkedin.com/pulse/data-windowing-technique-used-time-series-forecasting-alejandro/
+- https://albertum.medium.com/preprocessing-time-series-to-windowed-datasets-a464799b1df7
+
+### Regression
+
+- https://github.com/rahulworld/bitcoin-prediction/
+- https://github.com/Ali619/Bitcoin-Price-Prediction-LSTM
+- https://github.com/chibui191/bitcoin_volatility_forecasting
+- https://github.com/upathare1/Bitcoin-Price-Prediction
+- https://github.com/DevonFulcher/CryptoPricePredictor
+- https://github.com/shivamnegi92/LSTM-RNN-over-Bitcoin-Historical-Data
+
+### Classification
+
+- https://github.com/bukosabino/btctrading
+- https://github.com/jerryfane/bitcoin-price-prediction-with-2d-cnn
+- https://github.com/Leci37/stocks-prediction-Machine-learning-RealTime-TensorFlow (stock)
+
+## Other Resources
 
 https://git.mtapi.be/explore
 
