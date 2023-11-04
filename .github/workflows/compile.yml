@@ -18,11 +18,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: "recursive"
-      - name: Compiles (MQL4)
-        uses: fx31337/mql-compile-action@master
-        with:
-          path: MT4.mq4
-          verbose: true
+      # - name: Compiles (MQL4)
+      #   uses: fx31337/mql-compile-action@master
+      #   with:
+      #     path: server/MQL4/wisefinance-socket-server.mq4
+      #     verbose: true
       - name: Compiles (MQL5)
         uses: fx31337/mql-compile-action@master
         with:
