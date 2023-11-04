@@ -1,0 +1,45 @@
+FROM golang:1.14-buster AS novnc-build
+
+WORKDIR /src
+
+RUN go mod init build && \
+    go get github.com/geek1011/easy-novnc@v1.1.0 && \
+    go build -o /bin/easy-novnc github.com/geek1011/easy-novnc
+
+FROM engineervix/pyinstaller-windows:latest
+
+# Install required packages
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends openbox tigervnc-standalone-server supervisor gosu && \
+    rm -rf /var/lib/apt/lists && \
+    mkdir -p /usr/share/desktop-directories
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends lxterminal nano openssh-client rsync xdg-utils htop tar xzip gzip bzip2 zip unzip && \
+    rm -rf /var/lib/apt/lists
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends thunderbird && \
+    rm -rf /var/lib/apt/lists
+
+COPY --from=novnc-build /bin/easy-novnc /usr/local/bin/
+COPY assets/menu.xml /etc/xdg/openbox/
+COPY assets/supervisord.conf /etc/
+
+# set wine C drive directory
+ENV DRIVE_C=/wine/drive_c
+WORKDIR ${DRIVE_C}
+
+# Copy Metatrader5 folder inside wine and install required packages
+COPY Metatrader5 ${DRIVE_C}/Metatrader5
+# RUN pip install pandas MetaTrader5
+COPY assets/metatrader.desktop /usr/share/applications/
+
+# Install wine-python-pip
+RUN wget https://bootstrap.pypa.io/get-pip.py -O ${DRIVE_C}/Python37/Scripts/get-pip.py && \
+    wine ${DRIVE_C}/Python37/python.exe "${DRIVE_C}/Python37/Scripts/get-pip.py"
+
+# Port
+EXPOSE 8080
+
+CMD ["supervisord"]

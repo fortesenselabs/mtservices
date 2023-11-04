@@ -1,9 +1,6 @@
 name: Push MetaTrader5 Release to Docker Hub
 
 on:
-  push:
-    branches:
-      - main
   release:
     types:
       - created
@@ -18,14 +15,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Check if MT5 folder has changed
+      - name: Check if MQL5 folder has changed
         id: folder-changed
         run: |
-          if git diff --quiet HEAD^ HEAD -- MT5/; then
-            echo "MT5 folder has not changed"
+          if git diff --quiet HEAD^ HEAD -- server/MQL5/; then
+            echo "MQL5 folder has not changed"
             echo "FOLDER_CHANGED=false" >> $GITHUB_OUTPUT
           else
-            echo "MT5 folder has changed"
+            echo "MQL5 folder has changed"
             echo "FOLDER_CHANGED=true" >> $GITHUB_OUTPUT
           fi
 
@@ -37,7 +34,7 @@ jobs:
           DOCKER_REPO: metatrader
           DOCKER_TAG: 5
         run: |
-          docker build -t $DOCKER_REPO:$DOCKER_TAG -f MT5/Dockerfile.MetaTrader5 ./MT5
+          docker build -t $DOCKER_REPO:$DOCKER_TAG -f server/MQL5/Dockerfile.MetaTrader5 ./server/MQL5
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
           docker tag $DOCKER_REPO:$DOCKER_TAG $DOCKER_USERNAME/$DOCKER_REPO:$DOCKER_TAG
           docker push $DOCKER_USERNAME/$DOCKER_REPO:$DOCKER_TAG
