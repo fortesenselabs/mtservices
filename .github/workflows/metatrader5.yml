@@ -1,13 +1,15 @@
 name: Push MetaTrader5 Release to Docker Hub
 
 on:
+  push:
+    branches: [ $default-branch ]
+  pull_request:
+    branches: [ $default-branch ]
   release:
     types:
       - created
-    # Run only for tags that start with "v" (e.g. "v1.0.0")
     tags:
-      - 'v*'
-
+      - "v*"
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
