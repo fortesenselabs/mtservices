@@ -1,5 +1,0 @@
-LIBRARY	"mt5-rest.dll" 
-EXPORTS
-Init
-Deinit
-SetAuthToken
