@@ -31,7 +31,7 @@ ENV DRIVE_C=/wine/drive_c
 WORKDIR ${DRIVE_C}
 
 # Copy Metatrader5 folder inside wine and install required packages
-COPY Metatrader5 ${DRIVE_C}/Metatrader5
+COPY assets/Metatrader5 ${DRIVE_C}/Metatrader5
 # RUN pip install pandas MetaTrader5
 COPY assets/metatrader.desktop /usr/share/applications/
 
