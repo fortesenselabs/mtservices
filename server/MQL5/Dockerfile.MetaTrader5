@@ -18,9 +18,9 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends lxterminal nano openssh-client rsync xdg-utils htop tar xzip gzip bzip2 zip unzip && \
     rm -rf /var/lib/apt/lists
 
-RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends thunderbird && \
-    rm -rf /var/lib/apt/lists
+# RUN apt-get update -y && \
+#     apt-get install -y --no-install-recommends thunderbird && \
+#     rm -rf /var/lib/apt/lists
 
 COPY --from=novnc-build /bin/easy-novnc /usr/local/bin/
 COPY assets/menu.xml /etc/xdg/openbox/
