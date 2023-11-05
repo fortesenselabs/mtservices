@@ -89,67 +89,6 @@ void OnDeinit(const int reason)
   EventKillTimer();
 }
 
-// Handle Tick data request
-void RequestHandler(ClientSocket &client)
-{
-  RequestData reqData = ParseRequestData(client);
-
-  if (reqData.action == "CONFIG")
-  {
-    ScriptConfiguration(client, reqData);
-  }
-  else if (reqData.action == "ACCOUNT")
-  {
-    GetAccountInfo(client);
-  }
-  else if (reqData.action == "BALANCE")
-  {
-    GetBalanceInfo(client);
-  }
-  else if (reqData.action == "HISTORY")
-  {
-    // && !ValidateHistoryInfoRequest(reqData)
-    HistoryInfo(client, reqData);
-  }
-  else if (reqData.action == "TRADE")
-  {
-    // && !ValidateTradeRequestData(reqData)
-    TradingRequest(client, reqData);
-  }
-  else if (reqData.action == "POSITIONS")
-  {
-    GetPositions(client);
-  }
-  else if (reqData.action == "ORDERS")
-  {
-    GetOrders(client);
-  }
-  else if (reqData.action == "RESET")
-  {
-    ResetSubscriptionsAndIndicators(client);
-  }
-  // else if (reqData.action == "CALENDAR")
-  // {
-  //   // check the required params
-  //   GetEconomicCalendar(client, reqData);
-  // }
-  else
-  {
-    // send invalid command
-    CJAVal info;
-
-    info["error"] = true;
-    info["message"] = "invalid command";
-
-    string t = info.Serialize();
-    client.responseData = t;
-    SocketSend(client);
-
-    // Close the client socket
-    closesocket(client.socket);
-  }
-}
-
 //+------------------------------------------------------------------+
 //| Expert multi tick function                                       |
 //| Use this function instead of the standard OnTick() function      |
