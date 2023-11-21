@@ -217,7 +217,7 @@ void OnTimer()
     }
 
     // Send GET request to the server
-    if (HTTPGetRequest(pingSocket, "/health", ""))
+    if (HTTPGetRequest(pingSocket, "/api/v1/health", ""))
     {
       // Print("GET request sent"); // debug
 
