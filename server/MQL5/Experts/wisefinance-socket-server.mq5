@@ -26,6 +26,7 @@
 
 #include <wiseFinanceMT/ControlErrors.mqh>
 #include <wisefinanceMT/SocketServer.mqh>
+#include <wisefinanceMT/SocketClient.mqh>
 #include <wisefinanceMT/RequestHandlers.mqh>
 #include <wiseFinanceMT/Json.mqh>
 #include <wiseFinanceMT/OnTickSymbol.mqh>
@@ -36,14 +37,23 @@
 input string HOST = "0.0.0.0";
 input ushort PORT = 9000; // int
 
+// Set host and Port - for outgoing
+input string DATA_COLLECTOR_HOST = "localhost";
+input int DATA_COLLECTOR_PORT = 9090;
+
 // Global variables
 
 // Timer interval in milliseconds
-int timerInterval = 3 * 1000;
+int timerInterval = 1 * 1000;
 bool debug = true;
 
+bool ExtTLS = false; // for TLS socket connections
+
+bool connectedFlag = true;
+int deInitReason = -1;
+
 // Variables for handling price data stream
-bool liveStream = false;
+bool liveStream = true;
 
 struct SymbolSubscription
 {
@@ -69,7 +79,64 @@ void OnInit()
   mControl.SetSound(false);
   mControl.SetWriteFlag(false);
 
+  // Start timer for periodic data update
   EventSetMillisecondTimer(timerInterval);
+
+  // Establish socket connection
+  liveSocket = ConnectSocket(DATA_COLLECTOR_HOST, DATA_COLLECTOR_PORT);
+  if (liveSocket == INVALID_HANDLE)
+  {
+    Print("Failed to establish socket connection");
+    Print("Retrying...");
+    // return;
+  }
+
+  // Split the trading symbols string into an array
+  // string symbols = "" + SYMBOLS_TRADING;
+  // Define the trading symbols as a string
+  // string _SYMBOLS_TRADING = "Step Index,Boom 1000 Index,Volatility 100 Index,Volatility 25 Index";
+
+  // const int MAX_SYMBOLS = 4; // Adjust the maximum number of symbols if needed
+
+  // string symbolsArray[];
+  // SplitString(SYMBOLS_TRADING, ",", symbolsArray);
+
+  // Get All Symbols [currently getting only the ones in marketwatch]
+  int totalSymbols = SymbolsTotal(true) - 1;
+  for (int i = totalSymbols; i > 0; i--)
+
+  {
+
+    string symbolName = SymbolName(i, true);
+
+    // Print("Number: " + string(i) + " Symbol Name: " + symbolName + " Close Price: ", iClose(symbolName, 0, 0));
+    Print("Number: " + string(i) + " Symbol Name: " + symbolName);
+  }
+
+  string symbolsArray[] = {
+      "Step Index",
+      "Boom 1000 Index",
+      "Volatility 100 Index",
+      "Volatility 25 Index"};
+
+  // Subscribe to bar data
+  for (int i = 0; i < ArraySize(symbolsArray); i++)
+  {
+    string symbol = symbolsArray[i];
+    string timeframe = "M1";
+    SubscribeToBars(symbol, timeframe);
+  }
+
+  // Set up the timer
+  // EventSetTimer(timerInterval);
+  // Event loop
+  // while (!IsStopped())
+  // {
+  //   OnTick();
+  //   Sleep(10); // Yield to other tasks
+  // }
+
+  // ScriptConfiguration();
 
   // Start the server socket
   StartServer(HOST, PORT);
@@ -86,6 +153,14 @@ void OnDeinit(const int reason)
   // Print a message to the console
   printf("Server Socket connection closed\n");
 
+  deInitReason = reason;
+
+  EventKillTimer();
+
+  // Cleanup
+  SocketClose(liveSocket);
+  Print("Data collector Socket connection closed");
+
   EventKillTimer();
 }
 
@@ -96,7 +171,11 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick(string symbol)
 {
-  //
+  if (!liveStream || IsStopped())
+    return;
+
+  // Send tick data
+  SendTickData(symbol);
 }
 
 //+------------------------------------------------------------------+
@@ -109,6 +188,54 @@ void OnTimer()
 
   // Accept any new incoming connections
   AcceptClients();
+
+  // Send bar data for subscribed symbols
+  for (int i = 0; i < symbolSubscriptionCount; i++)
+  {
+    SymbolSubscription sub = symbolSubscriptions[i];
+    datetime lastBar = sub.lastBar;
+    datetime currentBar = iTime(sub.symbol, GetTimeframe(sub.chartTimeFrame), 0);
+    if (currentBar > lastBar)
+    {
+      SendBarData(sub.symbol, sub.chartTimeFrame);
+      sub.lastBar = currentBar;
+      symbolSubscriptions[i] = sub;
+    }
+  }
+
+  // Test socket connection
+  int pingSocket = ConnectSocket(HOST, PORT);
+  if (pingSocket != INVALID_HANDLE)
+  {
+    // Also, Check for connection failed errors - reconnect the liveSocket
+    if (liveSocket == INVALID_HANDLE)
+    {
+      Print("Failed to establish socket connection");
+      Print("Retrying...");
+
+      OnInit();
+    }
+
+    // Send GET request to the server
+    if (HTTPGetRequest(pingSocket, "/health", ""))
+    {
+      // Print("GET request sent"); // debug
+
+      // Read the response
+      if (!HTTPRecv(pingSocket, 1024))
+      {
+        int err = GetLastError();
+        Print("Failed to get a response, error ", err);
+      }
+    }
+    else
+    {
+      int err = GetLastError();
+      Print("Failed to send GET request, error ", err);
+    }
+
+    SocketClose(pingSocket);
+  }
 }
 
 //+------------------------------------------------------------------+

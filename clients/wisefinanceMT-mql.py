@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 from influxdb import DataFrameClient
 from ejtraderTH import start
 from ejtraderDB import DictSQLite
+from typing import Dict
+
 
 LOGGER = {
     "datefmt": "%Y-%m-%d %H:%M:%S",
@@ -31,29 +33,108 @@ LOGGER = {
 
 SOCK_BUF = 8192  # Adjust the buffer size as needed (4096)
 
-
 class Functions:
-    def __init__(self, host=None):
-        self.HOST = host or "127.0.0.1"
-        self.PORT = 9000  # Port
+    """
+    Functions: Connects to a MT4 or MT5 EA/Bot.
 
+        Args:
+            host: Server IP address, like -> '127.0.0.1', '192.168.5.1'
+            port: port number
+            instrument_lookup: dict with general instrument names and broker instrument names
+    """
+
+    def __init__(
+        self, host: str = None, port: int = None, instrument_lookup: list = []
+    ):
+        self.HOST = host or "127.0.0.1"
+        self.PORT = port or 9000  # Port
+        self.instrument_conversion_list: list = instrument_lookup
+        self.connected: bool = False
+        self.socket_error_message: str = ""
+        self.timeout_value: int = 120
+        self.sock: socket.socket
+
+    @property
+    def is_connected(self) -> bool:
+        """Returns connection status.
+        Returns:
+            bool: True or False
+        """
+        return self.connected
+
+    def _set_timeout(self, timeout_in_seconds: int = 120) -> None:
+        """
+        Set time out value for socket communication with MT4 or MT5 EA/Bot.
+
+        Args:
+            timeout_in_seconds: the time out value
+        Returns:
+            None
+        """
+        self.timeout_value = timeout_in_seconds
+        self.sock.settimeout(
+            self.timeout_value
+        )  # improve the timeout value (causes socket to end without completing task)
+        self.sock.setblocking(1)
+        return
+
+    def _disconnect(self) -> bool:
+        """
+        Closes the socket connection to a MT4 or MT5 EA bot.
+
+        Args:
+            None
+        Returns:
+            bool: True or False
+        """
+        self.sock.close()
+        return True
+
+    def _connect(self) -> bool:
+        """
+        Connects to a MT4 or MT5 EA/Bot.
+
+        Args:
+            None
+        Returns:
+            bool: True or False
+        """
         # Create a socket object
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        # Set timeout
+        self._set_timeout()
+
+        # if len(self.instrument_conversion_list) == 0:
+        #     print("Broker Instrument list not available or empty")
+        #     self.socket_error_message = "Broker Instrument list not available"
+        #     return False
 
         # Connect to the server
         try:
             self.sock.connect((self.HOST, self.PORT))
+            return True
+        except socket.error as msg:
+            print(
+                "Couldnt connect with the socket-server: %self.sock\n terminating program"
+                % msg
+            )
+            self.connected = False
+            self.socket_error_message = "Could not connect to server."
+            self.sock.close()
+            return False
         except KeyboardInterrupt:
             self.sock.close()
+            return False
 
-    def _send_request(self, data: dict) -> None:
+    def _send_request(self, data: Dict) -> None:
         """Send request to the server via socket"""
         try:
             # Serialize the data to JSON and send it
             json_data = json.dumps(data)
             self.sock.sendall(json_data.encode())  # Encode and send as bytes
         except AssertionError as err:
-            raise Exception(err)  # Handle exceptions as needed
+            raise err from Exception  # Handle exceptions as needed
 
     def _get_reply(self):
         """Get reply from the server via the socket with timeout"""
@@ -138,6 +219,8 @@ class Metatrader:
             logging.basicConfig(**LOGGER)
 
         self.__api = Functions(host)
+        self.__api._connect()  # connect to socket
+
         self.real_volume = real_volume or False
         self.__tz_local = tz_local
         self.__utc_timezone = timezone("UTC")
@@ -355,7 +438,6 @@ class Metatrader:
                             attempts += 1
                     if attempts == 2 and not success:
                         logging.info(f"Check if {active} is avalible from {fromDate}")
-                        pass
 
                     if data is not None and isinstance(data, dict):
                         try:
@@ -395,8 +477,6 @@ class Metatrader:
                             logging.info(
                                 f"Error while merge Dataframe {active}. Error message: {str(e)}"
                             )
-                            pass
-
             try:
                 main = main.loc[~main.index.duplicated(keep="first")]
                 appended_data.append(main)
@@ -758,42 +838,44 @@ class Metatrader:
             action="TRADE", actionType="POSITION_CLOSE_SYMBOL", symbol=symbol
         )
 
-    def close_partial_position(self, id: int, volume: float):
+    def close_partial_position(self, positionId: int, volume: float):
         self.__api.Command(
-            action="TRADE", actionType="POSITION_PARTIAL", id=id, volume=volume
+            action="TRADE", actionType="POSITION_PARTIAL", id=positionId, volume=volume
         )
 
     def cancel_all_orders(self):
         orders = self.orders()
-
+        
         if "orders" in orders:
-            for order in orders["orders"]:
-                self.cancel_order_by_ticket_id(order["id"])
+            while len(orders["orders"]) > 0:
+                for order in orders["orders"]:
+                    self.cancel_order_by_ticket_id(order["id"])
 
     def close_all_positions(self):
-        positions = self.positions()
-
-        if "positions" in positions:
+       positions = self.positions()
+        #    while len(positions["positions"]) > 0:
+       if "positions" in positions:
             for position in positions["positions"]:
-                self.close_position_by_ticket_id(position["id"])
-
+                ticket_id = position["id"]
+                self.close_position_by_ticket_id(ticket_id)
 
 if __name__ == "__main__":
     api = Metatrader()
 
     # Account information
-    accountInfo = api.accountInfo()
-    print(accountInfo)
+    # accountInfo = api.accountInfo()
+    # print(accountInfo)
     # print(api.balance())
 
     # History from Date to Date
-    # symbol = "Step Index"
-    # timeframe = "D1"
-    # fromDate = "20/02/2021"
-    # toDate = "24/02/2022"
+    symbol = "Step Index"
+    timeframe = "D1"
+    fromDate = "20/02/2021"
+    toDate = "24/02/2022"
 
-    # history = api.history(symbol, timeframe, fromDate, toDate)
-    # print(history)
+    history = api.history(symbol, timeframe, fromDate, toDate)
+    history.to_csv(f"{symbol}-{timeframe}")
+    print(history)
 
     # History by period unit like 27 candles
     # you can add unlimited actives to list  ["EURUSD","GBPUSD","AUDUSD"]
@@ -805,7 +887,7 @@ if __name__ == "__main__":
     # print(history)
 
     # TODO: Not Working  (error => strptime() argument 1 must be str, not None)
-    # History for lastest period great for predictions
+    # History for latest period great for predictions
     # you can add unlimited actives to list  ["EURUSD","GBPUSD","AUDUSD"]
     # symbol = "Step Index"
     # timeframe = "D1"
@@ -827,7 +909,7 @@ if __name__ == "__main__":
     # You can create market or pending order with the commands.
     # Market Orders
     # symbol, volume, stoploss, takeprofit, deviation
-    # api.buy("Step Index", 0.1, None, None, 5) # opens multiple orders
+    # api.buy("Step Index", 0.1, None, None, 5)  # opens multiple orders
     # api.sell("Step Index", 0.1, None, None, 5)
 
     # Limit Orders
@@ -869,6 +951,15 @@ if __name__ == "__main__":
     # cancel all orders
     # api.cancel_all_orders()
 
-
+#
 # errors:
 # {"error":true,"lastError":"65537","description":"ERR_DESERIALIZATION","function":"UnWrapRequestObject"}
+#
+#
+# https://www.mql5.com/en/forum/349168
+# MQL5 command to get all symbols as strings [Google]
+#
+# checkout mindsdb, for now we can create a data collection and distribution pipeline
+# one can also shift the close all or cancel all command to the server 
+# but the fundamental problem is still there, one can't selectively close positions or cancel orders from the client 
+# consider close or cancel by magic number 
