@@ -9,3 +9,5 @@ samples
 .local.session.sql
 
 resources/
+
+mdb_data/

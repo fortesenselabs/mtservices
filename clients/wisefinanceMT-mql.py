@@ -870,11 +870,11 @@ if __name__ == "__main__":
     # History from Date to Date
     symbol = "Step Index"
     timeframe = "D1"
-    fromDate = "20/02/2021"
-    toDate = "24/02/2022"
+    fromDate = "20/12/2022"
+    toDate = "24/02/2023"
 
     history = api.history(symbol, timeframe, fromDate, toDate)
-    history.to_csv(f"{symbol}-{timeframe}")
+    history.to_csv(f"{symbol}-{timeframe}.csv")
     print(history)
 
     # History by period unit like 27 candles
