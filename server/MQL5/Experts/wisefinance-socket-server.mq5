@@ -183,11 +183,10 @@ void OnTick(string symbol)
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-
-  tm = TimeTradeServer();
-
   // Accept any new incoming connections
   AcceptClients();
+
+  tm = TimeTradeServer();
 
   // Send bar data for subscribed symbols
   for (int i = 0; i < symbolSubscriptionCount; i++)
