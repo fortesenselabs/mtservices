@@ -11,3 +11,5 @@ samples
 resources/
 
 mdb_data/
+
+custom-nats-clients/*.out
