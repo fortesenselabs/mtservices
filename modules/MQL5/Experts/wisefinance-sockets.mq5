@@ -182,7 +182,7 @@ void OnDeinit(const int reason)
 
   // deInitReason = reason;
 
-  // EventKillTimer();
+  EventKillTimer();
 
   // Cleanup
   // SocketClose(liveSocket);
@@ -212,6 +212,11 @@ void OnTick(string symbol)
 //+------------------------------------------------------------------+
 void OnTimer()
 {
+  if (NatsSocketRecv(Client))
+    {
+        Print("Received Data: ", Client.responseData);
+    }
+
   // // Accept any new incoming connections
   // AcceptClients();
 
