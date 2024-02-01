@@ -1,0 +1,7 @@
+#pandas
+tqdm
+pytz
+tzlocal
+influxdb
+ejtraderTH
+ejtraderDB

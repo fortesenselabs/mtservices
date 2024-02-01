@@ -9,3 +9,7 @@ samples
 .local.session.sql
 
 resources/
+
+mdb_data/
+
+custom-nats-clients/*.out
