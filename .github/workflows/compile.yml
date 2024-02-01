@@ -26,5 +26,5 @@ jobs:
       - name: Compiles (MQL5)
         uses: fx31337/mql-compile-action@master
         with:
-          path: server/MQL5/wisefinance-socket-server.mq5
+          path: modules/MQL5/Experts/wisefinance-sockets.mq5
           verbose: true
