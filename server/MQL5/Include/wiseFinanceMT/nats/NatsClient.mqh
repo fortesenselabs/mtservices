@@ -191,3 +191,4 @@ void NAtsCloseSocket(NATSClient &client)
 
 // Connection to demo.nats.io:4222 failed, error 4014 => https://www.mql5.com/en/forum/349124
 // https://www.mql5.com/en/docs/constants/errorswarnings/errorcodes
+// https://www.mql5.com/en/docs/network/socketsend
