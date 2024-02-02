@@ -283,7 +283,9 @@ bool NatsSubscribe(NATSClient &client, string subject, string sid) // sid = 90
                 // subscription.subject = subject;
                 // subscription.timestamp = TimeCurrent();
 
-                // TODO: keep track of subscriptions
+                // the client seems to send multiple subscription requests to the server
+                // but after MAX_SUBSCRIPTIONS it stops sending requests
+                // TODO: Implement a subscription manager (keep track of subscriptions)
 
                 if (client.state.subscribeCount < MAX_SUBSCRIPTIONS) // Ensure index is within bounds
                 {
