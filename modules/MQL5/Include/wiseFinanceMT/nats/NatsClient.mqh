@@ -271,6 +271,9 @@ bool NatsSubscribe(NATSClient &client, string subject, string sid) // sid = 90
     //     return false;
     // }
 
+    // how do we keep track of subscriptions?
+    // how do we tell the server to stop sending SUB messages? 
+    
     if (client.state.pingCount > 0)
     {
         client.requestData = "SUB " + subject + " " + sid + "\r\n";
