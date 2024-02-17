@@ -11,9 +11,9 @@
 #property copyright "Copyright 2023, Fortesense Labs."
 #property link "https://www.wisefinance.com"
 #property version "0.10"
-#property description "Wise Finance Sockets"
-#define SYMBOLS_TRADING "EURUSD", "GBPUSD", "USDJPY", "USDCHF"
-// #define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index" // get all symbols
+#property description "Wise Finance Socket Server"
+// #define SYMBOLS_TRADING "EURUSD", "GBPUSD", "USDJPY", "USDCHF"
+#define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index" // get all symbols
 #define CHART_EVENT_SYMBOL CHARTEVENT_ALL
 
 #include <Trade/AccountInfo.mqh>
@@ -25,28 +25,22 @@
 // Required:
 
 #include <wiseFinanceMT/ControlErrors.mqh>
-// #include <wisefinanceMT/sockets/SocketServer.mqh>
-// #include <wisefinanceMT/SocketClient.mqh>
-#include <wisefinanceMT/nats/NatsClient.mqh>
+#include <wisefinanceMT/sockets/SocketServer.mqh>
+// #include <wisefinanceMT/sockets/SocketClient.mqh>
 #include <wisefinanceMT/RequestHandlers.mqh>
-#include <wiseFinanceMT/Json.mqh>
+#include <wiseFinanceMT/formats/Json.mqh>
 #include <wiseFinanceMT/OnTickSymbol.mqh>
-// #include <wiseFinanceMT/Calendar.mqh>
+#include <wiseFinanceMT/Calendar.mqh>
 #include <wiseFinanceMT/Utils.mqh>
 
-// Global variables
-
 // Set host and Port
-input string NATS_HOST = "demo.nats.io";
-input int NATS_PORT = 4222;
-
-// TODO: Remove the HOST, PORT and DATA_COLLECTOR_HOST, DATA_COLLECTOR_PORT variables and their references
 input string HOST = "0.0.0.0";
-input ushort PORT = 9000; // int
+input ushort PORT = 1122; // int
 
-// Set host and Port - for outgoing
-input string DATA_COLLECTOR_HOST = "localhost";
-input int DATA_COLLECTOR_PORT = 9090;
+// auth code
+input string AUTHORIZATION_CODE = "123456";
+
+// Global variables
 
 // Timer interval in milliseconds
 int timerInterval = 1 * 1000;
@@ -66,7 +60,6 @@ struct SymbolSubscription
   string chartTimeFrame;
   datetime lastBar;
 };
-
 SymbolSubscription symbolSubscriptions[];
 int symbolSubscriptionCount = 0;
 
@@ -74,8 +67,6 @@ datetime tm;
 
 // Error handling
 ControlErrors mControl;
-
-NATSClient Client;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -91,23 +82,63 @@ void OnInit()
   EventSetMillisecondTimer(timerInterval);
 
   // Establish socket connection
-  Client = NatsConnectSocket(NATS_HOST, NATS_PORT);
-  if (Client.socket == INVALID_HANDLE)
-  {
-    Print("Failed to establish socket connection to NATS server");
-    Print("Retrying...");
-    // return;
-  }
+  // liveSocket = ConnectSocket(DATA_COLLECTOR_HOST, DATA_COLLECTOR_PORT);
+  // if (liveSocket == INVALID_HANDLE)
+  // {
+  //   Print("Failed to establish socket connection");
+  //   Print("Retrying...");
+  //   // return;
+  // }
 
-  // Print(Client);
-    // connected?
-  if (Client.state.connect)
-  {
-    Print("Connected to NATS server");
-  } else {
-    Print("Failed to connect to NATS server");
-    Print("Server Response => ", Client.responseData);
-  }
+  // Split the trading symbols string into an array
+  // string symbols = "" + SYMBOLS_TRADING;
+  // Define the trading symbols as a string
+  // string _SYMBOLS_TRADING = "Step Index,Boom 1000 Index,Volatility 100 Index,Volatility 25 Index";
+
+  // const int MAX_SYMBOLS = 4; // Adjust the maximum number of symbols if needed
+
+  // string symbolsArray[];
+  // SplitString(SYMBOLS_TRADING, ",", symbolsArray);
+
+  // Get All Symbols [currently getting only the ones in marketwatch]
+  // int totalSymbols = SymbolsTotal(true) - 1;
+  // for (int i = totalSymbols; i > 0; i--)
+
+  // {
+
+  //   string symbolName = SymbolName(i, true);
+
+  //   // Print("Number: " + string(i) + " Symbol Name: " + symbolName + " Close Price: ", iClose(symbolName, 0, 0));
+  //   Print("Number: " + string(i) + " Symbol Name: " + symbolName);
+  // }
+
+  // string symbolsArray[] = {
+  //     "Step Index",
+  //     "Boom 1000 Index",
+  //     "Volatility 100 Index",
+  //     "Volatility 25 Index"};
+
+  // Subscribe to bar data
+  // for (int i = 0; i < ArraySize(symbolsArray); i++)
+  // {
+  //   string symbol = symbolsArray[i];
+  //   string timeframe = "M1";
+  //   SubscribeToBars(symbol, timeframe);
+  // }
+
+  // Set up the timer
+  // EventSetTimer(timerInterval);
+  // Event loop
+  // while (!IsStopped())
+  // {
+  //   OnTick();
+  //   Sleep(10); // Yield to other tasks
+  // }
+
+  // ScriptConfiguration();
+
+  // Start the server socket
+  StartServer(HOST, PORT);
 }
 
 //+------------------------------------------------------------------+
@@ -115,14 +146,15 @@ void OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-  // Cleanup
-  EventKillTimer();
-
   // Close the server socket
-  NatsCloseSocket(Client);
-  Print("Socket connection closed");
+  CloseServer();
 
-  // EventKillTimer();
+  // Print a message to the console
+  printf("Server Socket closed\n");
+
+  deInitReason = reason;
+
+  EventKillTimer();
 }
 
 //+------------------------------------------------------------------+
@@ -132,7 +164,11 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick(string symbol)
 {
-  // OnTick handler
+  // if (!liveStream || IsStopped())
+  //   return;
+
+  // // Send tick data
+  // SendTickData(symbol);
 }
 
 //+------------------------------------------------------------------+
@@ -140,29 +176,58 @@ void OnTick(string symbol)
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-  // perform handshake
-  if (PerformHandshakeConnection(Client) && NatsConnectionKeepAlive(Client)) {
-     // Subscribe to a symbol => NatsSubscribe(Client, "EURUSD", "M1");
-      // NatsSubscribe(Client, "foo.*", "90", );
-      // Call the NatsSubscribe function
-      string subject = "foo.*";
-      string sid = "90";
-      // SubscriptionCallback callback = OnNatsMessage;
+  // Accept any new incoming connections
+  AcceptClients();
 
-      NatsSubscribe(Client, subject, sid);
-
-      // Publish to a symbol
-      NatsPublish(Client, "foo.bar", "Hello");
-
-     // Receive message
-      NatsReceiveMessage(Client);
-  }
-
-  // Print("Interval: ", timerInterval);
-
-  // Get time
   tm = TimeTradeServer();
-  // Print("Time: ", tm);
+
+  // // Send bar data for subscribed symbols
+  // for (int i = 0; i < symbolSubscriptionCount; i++)
+  // {
+  //   SymbolSubscription sub = symbolSubscriptions[i];
+  //   datetime lastBar = sub.lastBar;
+  //   datetime currentBar = iTime(sub.symbol, GetTimeframe(sub.chartTimeFrame), 0);
+  //   if (currentBar > lastBar)
+  //   {
+  //     SendBarData(sub.symbol, sub.chartTimeFrame);
+  //     sub.lastBar = currentBar;
+  //     symbolSubscriptions[i] = sub;
+  //   }
+  // }
+
+  // // Test socket connection
+  // int pingSocket = ConnectSocket(HOST, PORT);
+  // if (pingSocket != INVALID_HANDLE)
+  // {
+  //   // Also, Check for connection failed errors - reconnect the liveSocket
+  //   if (liveSocket == INVALID_HANDLE)
+  //   {
+  //     Print("Failed to establish socket connection");
+  //     Print("Retrying...");
+
+  //     OnInit();
+  //   }
+
+  //   // Send GET request to the server
+  //   if (HTTPGetRequest(pingSocket, "/api/v1/health", ""))
+  //   {
+  //     // Print("GET request sent"); // debug
+
+  //     // Read the response
+  //     if (!HTTPRecv(pingSocket, 1024))
+  //     {
+  //       int err = GetLastError();
+  //       Print("Failed to get a response, error ", err);
+  //     }
+  //   }
+  //   else
+  //   {
+  //     int err = GetLastError();
+  //     Print("Failed to send GET request, error ", err);
+  //   }
+
+  //   SocketClose(pingSocket);
+  // }
 }
 
 //+------------------------------------------------------------------+
@@ -178,12 +243,10 @@ void OnChartEvent(const int id, // event id
                   const string &sparam) // event param of string type
 
 {
+
   //--- Add code here...
   Print("OnChartEvent id: ", id);
   // Print("OnChartEvent lparam: ", lparam);
   // Print("OnChartEvent dparam: ", dparam);
   // Print("OnChartEvent sparam: ", sparam);
 }
-
-
-// TODO: Remove the chart event handler dependency => OnTickSymbol
