@@ -17,13 +17,23 @@
 #include <wiseFinanceMT/OnTickSymbol.mqh>
 #include <wisefinanceMT/SocketClient.mqh>
 #include <wiseFinanceMT/Utils.mqh>
+// #include <Mql/Collection/HashMap.mqh>
+
+
+struct Message {
+    string Subject;
+    string Reply;
+    // string Data[];
+    // Data    []byte;
+    // Subscription Sub;  
+};
 
 // Sockets
-struct ClientSubscription
+class ClientSubscription
 {
-  string subject;
-//   string message;
-  datetime timestamp;
+public:
+    string subject;
+    datetime timestamp;
 };
 
 struct ConnectionState {
@@ -41,8 +51,8 @@ struct NATSClient
     string requestData;
     string responseData;
     ConnectionState state;
-    // ClientSubscription subscriptions[];
-    string subscriptions[];
+    // HashMap<string, string> subscriptions; // sid: subject
+    string subscriptions; // subject1:sid1;subject2:sid2 (bad decision, but it's a start)
 };
 
 //+------------------------------------------------------------------+
@@ -99,8 +109,6 @@ bool NatsSocketRecv(NATSClient &client)
                     // Print("Response => ", result); // debug
                     client.responseData = result;
 
-                    // TODO: Implement a parser for parsing commands
-
                     //--- parse the body
                     // string body = StringSubstr(result, bodyEnd + 4);
                     return (true);
@@ -115,7 +123,7 @@ bool NatsSocketRecv(NATSClient &client)
 //+------------------------------------------------------------------+
 //| Function to establish a socket connection                        |
 //+------------------------------------------------------------------+
-NATSClient NAtsConnectSocket(string host, int port)
+NATSClient NatsConnectSocket(string host, int port)
 {
     NATSClient client;
 
@@ -146,6 +154,7 @@ NATSClient NAtsConnectSocket(string host, int port)
             client.state.pingCount = 0;
             client.state.subscribeCount = 0;
             client.state.publishCount = 0;
+            client.subscriptions = "";
 
             return client;
         }
@@ -165,25 +174,20 @@ NATSClient NAtsConnectSocket(string host, int port)
 }
 
 //+------------------------------------------------------------------+
-//| server-client handshake                                          |
+//| server-client handshake connection                               |
 //+------------------------------------------------------------------+
-bool PerformHandshake(NATSClient& client)
+bool PerformHandshakeConnection(NATSClient& client)
 {
+    if (client.state.connect)
+    {
+        Print("PerformHandshakeConnection => connection still open");
+        return true;
+    }
+
+
     if (NatsSocketRecv(client))
     {
         Print("Received Data: ", client.responseData);
-        
-        // Respond to the server's Ping
-        if (StringFind(client.responseData, "PING") != -1)
-        {
-            Print("Found PING data: ", StringFind(client.responseData, "PING"));
-
-            client.requestData = "PONG\r\n";
-            if (NatsSocketSend(client))
-            {
-                client.state.pingCount = client.state.pingCount + 1;
-            }
-        }
 
         if (!client.state.connect)
         {
@@ -201,18 +205,49 @@ bool PerformHandshake(NATSClient& client)
         return true;
     } 
     
-    if (client.state.connect && client.state.pingCount > 0)
-    {
-        Print("HANDSHAKE => connection still open");
-        return true;
-    }
-
-    Print("Failed to perform handshake, error ", GetLastError());
+  
+    Print("PerformHandshakeConnection => error ", GetLastError());
     
     return false;
 }
 
-void NAtsCloseSocket(NATSClient &client)
+
+bool NatsConnectionKeepAlive(NATSClient& client)
+{
+    Print("Connection Pings: ", Client.state.pingCount);
+    Print("Connection State: ", Client.state.connect);
+
+    if (NatsSocketRecv(client))
+    {
+        Print("Received Data: ", client.responseData);
+        
+        // Respond to the server's Ping
+        if (StringFind(client.responseData, "PING") != -1)
+        {
+            Print("Found PING data: ", StringFind(client.responseData, "PING"));
+
+            client.requestData = "PONG\r\n";
+            if (NatsSocketSend(client))
+            {
+                client.state.pingCount = client.state.pingCount + 1;
+            }
+        }
+
+        return true;
+    } 
+    
+    if (client.state.connect && client.state.pingCount > 0)
+    {
+        Print("NatsConnectionKeepAlive => connection still open");
+        return true;
+    }
+
+    Print("NatsConnectionKeepAlive => error ", GetLastError());
+    
+    return false;
+}
+
+void NatsCloseSocket(NATSClient &client)
 {
     if (client.socket != INVALID_HANDLE)
     {
@@ -265,52 +300,64 @@ bool NatsSubscribe(NATSClient &client, string subject, string sid) // sid = 90
 {
     // SUB foo.* 90
     // +OK
-    // if (client.state.subscribe > 0)
+    
+    Print("client.state.subscribeCount => ", client.state.subscribeCount);
+
+    if (client.state.pingCount <= 0)
+    {
+        Print("Waiting for server to send PING message");
+        return false;
+    }
+
+    // if (StringFind(client.subscriptions, subject + ":" + sid) != -1)
     // {
-    //     Print("Already subscribed");
+    //     Print("Already subscribed to this subject with this sid");
     //     return false;
     // }
 
     // how do we keep track of subscriptions?
     // how do we tell the server to stop sending SUB messages? 
-    
-    if (client.state.pingCount > 0)
+
+    // the client seems to send multiple subscription requests to the server
+    // but after MAX_SUBSCRIPTIONS it stops sending requests
+    if (client.state.subscribeCount < MAX_SUBSCRIPTIONS) // Ensure index is within bounds
     {
         client.requestData = "SUB " + subject + " " + sid + "\r\n";
         if (NatsSocketSend(client) && NatsSocketRecv(client))
         {
             if (StringFind(client.responseData, "OK") != -1)
             {
-                string subscription;
-                // ClientSubscription subscription;
+                // string subscription = subject;
+                // ClientSubscription subscription = new ClientSubscription();
                 // subscription.subject = subject;
                 // subscription.timestamp = TimeCurrent();
 
-                // the client seems to send multiple subscription requests to the server
-                // but after MAX_SUBSCRIPTIONS it stops sending requests
                 // TODO: Implement a subscription manager (keep track of subscriptions)
+        
+                // TODO: use a set to keep track of subscriptions (ArraySet<string> subscriptions; || HashSet<string>)
+                // Print("client.subscriptions => ", client.subscriptions.size());
 
-                if (client.state.subscribeCount < MAX_SUBSCRIPTIONS) // Ensure index is within bounds
-                {
-                    Print("client.subscriptions => ", client.subscriptions[0]);
-                    Print("client.state.subscribeCount => ", client.state.subscribeCount);
-                    client.subscriptions[client.state.subscribeCount] = subscription;
-                    client.state.subscribeCount = client.state.subscribeCount + 1;
+                // TODO: fix invalid pointer access in 'Collection.mqh' (156,10)
+                // if (!client.subscriptions.contains(sid))
+                // {
+                //     Print("Already subscribed to: ", subject);
+                //     return false;
+                // }
 
-                    Print("Subscribed to: ", subject);
-                    return true;
-                }
-                else
-                {
-                    Print("Maximum number of subscriptions reached");
-                    return false;
-                }
+                // client.subscriptions.set(sid, subject);
+                // client.subscriptions = client.subscriptions + subject + ":" + sid + ";";
+                client.state.subscribeCount = client.state.subscribeCount + 1;
+
+                Print("Subscribed to: ", subject);
+                return true;
             }
         }
-    }
+    } 
 
+    Print("Maximum number of subscriptions reached");
     return false;
 }
+
 
 //+------------------------------------------------------------------+
 //| RECEIVE MESSAGE                                                  |
@@ -319,28 +366,62 @@ bool NatsReceiveMessage(NATSClient &client)
 {
     // MSG foo.bar 90 5
     // hello
-    if (client.state.subscribeCount <= 0)
-    {
-        Print("No subscription found");
-        return false;
-    }
+    // if (client.state.subscribeCount <= 0)
+    // {
+    //     Print("No subscription found");
+    //     return false;
+    // }
 
-    if (client.state.pingCount > 0)
-    {
-        Print("Received message 2: ", client.responseData);
+    // if (client.state.pingCount > 0)
+    // if (StringFind(client.subscriptions, subject + ":" + sid) != -1)
+    // {
         if (NatsSocketRecv(client))
         {
-            Print("Received message 3: ", client.responseData);
+            Print("Received message: ", client.responseData);
             if (StringFind(client.responseData, "MSG") != -1)
             {
-                Print("Received message: ", client.responseData);
+                // Parse the message and extract the subject, reply subject, and payload
+                string message = client.responseData;
+                ParseMessage(message);
+
                 return true;
             }
         }
-    }
+    // }
 
     return false;
 }
+
+
+// TODO: Implement a parser for parsing commands and messages
+void ParseMessage(const string& message)
+{
+    // MSG foo.bar 90 5
+    // hello
+    // 
+    // Message msg;
+    // 
+    // Parse the message and extract the subject, reply subject, and payload
+    // string command, subject, sid, msgLen, payload;
+    // ...
+    string result[];               // An array to get strings
+    string sep=" ";                // A separator as a character
+    ushort u_sep;                  // The code of the separator character
+
+    //--- Get the separator code
+    u_sep=StringGetCharacter(sep,0);
+
+    //--- Split the string to substrings
+    int k=StringSplit(message,u_sep,result);
+  
+
+    PrintFormat("Strings obtained: %d. Used separator '%s' with the code %d",k,sep,u_sep);
+    for(int i=0;i<k;i++)
+    {
+        PrintFormat("String %d: %s",i,result[i]);
+    }
+}
+
 
 // Some Potential -> Error Codes:
 // -ERR 'Stale Connection'

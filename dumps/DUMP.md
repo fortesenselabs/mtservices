@@ -275,3 +275,120 @@
 //   }
 // }
 ```
+
+```cpp
+// // Function to dispatch the callback for a received message
+// bool NatsReceiveMessage(NATSClient& client)
+// {
+//         // if (client.state.subscribeCount <= 0)
+//         // {
+//         //     Print("No subscription found");
+//         //     return false;
+//         // }
+//     if (client.state.pingCount > 0 && NatsSocketRecv(client)) {
+//         Print("Received message 3: ", client.responseData);
+
+//         // Parse the message and extract the subject, reply subject, and payload
+//         string message = client.responseData;
+//         ParseMessage(message);
+
+//                     // string subject, replySubject, payload;
+//                     // Parse the message to extract subject, reply subject, and payload
+//                     // ...
+
+//                     // Look up the subscription callback in the hash map using the subscription ID
+//                     // string sid = "90"; // Replace with the actual subscription ID
+//                     // auto it = subscriptionMap.find(sid);
+//                     // if (subscriptionMap.contains(sid))
+//                     // {
+//                     //     // Dispatch the callback with the message details
+//                     //     SubscriptionCallback callback; //= it->second.callback;
+//                     //     callback(subject, replySubject, payload);
+//                     //     return true;
+//                     // }
+
+//                     //   if (it != subscriptionMap.end())
+//                     // {
+//                     //     // Dispatch the callback with the message details
+//                     //     SubscriptionCallback callback = it->second.callback;
+//                     //     callback(subject, replySubject, payload);
+//                     //     return true;
+//                     // }
+//         return true;
+//     }
+
+//     return false;
+// }
+
+```
+
+```cpp
+// // Function to subscribe and store the callback
+// bool NatsSubscribe(NATSClient& client, string subject, string sid, SubscriptionCallback callback)
+//     {
+//         // Perform the subscription
+//         if (client.state.pingCount > 0)
+//         {
+//             client.requestData = "SUB " + subject + " " + sid + "\r\n";
+//             if (NatsSocketSend(client) && NatsSocketRecv(client))
+//             {
+//                 if (StringFind(client.responseData, "OK") != -1)
+//                 {
+//                     // Create a new subscription object
+//                     Subscription subscription;
+//                     subscription.subject = subject;
+//                     subscription.sid = sid;
+//                     subscription.callback = callback;
+
+//                     // Store the subscription in the hash map
+//                     // subscriptionMap[sid] = subscription;
+//                     subscriptionMap.set(sid, &subscription);
+
+//                     Print("Subscribed to: ", subject);
+//                     return true;
+//                 }
+//             }
+//         }
+
+//         return false;
+// }
+```
+
+```cpp
+// Define a type for the callback handler
+// typedef void (*SubscriptionCallback)(const string& subject, const string& replySubject, const string& payload);
+
+// Define a struct to hold the subscription information
+// struct Subscription {
+//         string subject;
+//         string sid;
+//         SubscriptionCallback callback;
+// };
+
+// class Subscription
+// {
+// public:
+//     string subject;
+//     string sid;
+//     SubscriptionCallback callback;
+//     // datetime timestamp;
+
+//    void executeCallback(const string& replySubject, const string& payload)
+//     {
+//         callback(subject, replySubject, payload);
+//     }
+// };
+
+// ClientSubscription subscriptions[];
+// string subscriptions[];
+// ArraySet<ClientSubscription*> subscriptions;
+// ArraySet<ClientSubscription*> subscriptions;
+// HashMap<string, int> subscriptions;
+//
+//  unordered_map<string, Subscription> subscriptionMap;
+
+void OnNatsMessage(const string& subject, const string& replySubject, const string& payload)
+{
+    Print("OnNatsMessage => Received message: ", payload);
+}
+```
