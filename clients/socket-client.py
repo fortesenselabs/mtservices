@@ -5,7 +5,7 @@ import json
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Connect to the server
-s.connect(("127.0.0.1", 9000))
+s.connect(("127.0.0.1", 1122))
 
 # Create a dictionary to send as JSON
 data_to_send = {"action": "ACCOUNT"}  # Add your data as needed

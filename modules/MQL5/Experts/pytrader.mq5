@@ -13,8 +13,8 @@
 #property version "0.10"
 #property description "Wise Finance Socket Server"
 // #define SYMBOLS_TRADING "EURUSD", "GBPUSD", "USDJPY", "USDCHF"
-// #define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index" // get all symbols
-// #define CHART_EVENT_SYMBOL CHARTEVENT_ALL
+#define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index" // get all symbols
+#define CHART_EVENT_SYMBOL CHARTEVENT_ALL
 
 #include <Trade/AccountInfo.mqh>
 #include <Trade/DealInfo.mqh>
@@ -26,23 +26,19 @@
 
 #include <wiseFinanceMT/ControlErrors.mqh>
 #include <wisefinanceMT/sockets/SocketServer.mqh>
-// #include <wisefinanceMT/SocketClient.mqh>
+// #include <wisefinanceMT/sockets/SocketClient.mqh>
 #include <wisefinanceMT/RequestHandlers.mqh>
-#include <wiseFinanceMT/Json.mqh>
+#include <wiseFinanceMT/formats/Json.mqh>
 #include <wiseFinanceMT/OnTickSymbol.mqh>
 #include <wiseFinanceMT/Calendar.mqh>
 #include <wiseFinanceMT/Utils.mqh>
 
 // Set host and Port
 input string HOST = "0.0.0.0";
-input ushort PORT = 9000; // int
+input ushort PORT = 1122; // int
 
-// Set host and Port - for outgoing
-input string DATA_COLLECTOR_HOST = "localhost";
-input int DATA_COLLECTOR_PORT = 9090;
-
-input string NATS_HOST = "demo.nats.io";
-input int NATS_PORT = 4222;
+// auth code
+input string AUTHORIZATION_CODE = "123456";
 
 // Global variables
 
@@ -72,8 +68,6 @@ datetime tm;
 // Error handling
 ControlErrors mControl;
 
-NATSClient Client;
-
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -95,27 +89,6 @@ void OnInit()
   //   Print("Retrying...");
   //   // return;
   // }
-
-  // Establish socket connection
-  Client = NAtsConnectSocket(NATS_HOST, NATS_PORT);
-  if (Client.socket == INVALID_HANDLE)
-  {
-    Print("Failed to establish socket connection to NATS server");
-    Print("Retrying...");
-    // return;
-  }
-
-  // Print(Client);
-  // Handshake
-  if (Handshake(Client))
-  {
-    Print("Connected to NATS server");
-    Print("Response Data => ", Client.responseData);
-  }
-  else
-  {
-    Print("Handshake failed");
-  };
 
   // Split the trading symbols string into an array
   // string symbols = "" + SYMBOLS_TRADING;
@@ -165,7 +138,7 @@ void OnInit()
   // ScriptConfiguration();
 
   // Start the server socket
-  // StartServer(HOST, PORT);
+  StartServer(HOST, PORT);
 }
 
 //+------------------------------------------------------------------+
@@ -174,22 +147,14 @@ void OnInit()
 void OnDeinit(const int reason)
 {
   // Close the server socket
-  // CloseServer();
+  CloseServer();
 
   // Print a message to the console
-  // printf("Server Socket connection closed\n");
+  printf("Server Socket closed\n");
 
-  // deInitReason = reason;
+  deInitReason = reason;
 
   EventKillTimer();
-
-  // Cleanup
-  // SocketClose(liveSocket);
-  NAtsCloseSocket(Client);
-  Print("Socket connection closed");
-  //  Print("Data collector Socket connection closed");
-
-  // EventKillTimer();
 }
 
 //+------------------------------------------------------------------+
@@ -211,17 +176,10 @@ void OnTick(string symbol)
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-  if (NatsSocketRecv(Client))
-    {
-        Print("Received Data: ", Client.responseData);
-    }
+  // Accept any new incoming connections
+  AcceptClients();
 
-Print("Interval: ", timerInterval);
-
-  // // Accept any new incoming connections
-  // AcceptClients();
-
-  // tm = TimeTradeServer();
+  tm = TimeTradeServer();
 
   // // Send bar data for subscribed symbols
   // for (int i = 0; i < symbolSubscriptionCount; i++)

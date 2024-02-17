@@ -25,7 +25,7 @@
 // Required:
 
 #include <wiseFinanceMT/ControlErrors.mqh>
-// #include <wisefinanceMT/SocketServer.mqh>
+// #include <wisefinanceMT/sockets/SocketServer.mqh>
 // #include <wisefinanceMT/SocketClient.mqh>
 #include <wisefinanceMT/nats/NatsClient.mqh>
 #include <wisefinanceMT/RequestHandlers.mqh>
@@ -34,18 +34,19 @@
 // #include <wiseFinanceMT/Calendar.mqh>
 #include <wiseFinanceMT/Utils.mqh>
 
+// Global variables
+
 // Set host and Port
+input string NATS_HOST = "demo.nats.io";
+input int NATS_PORT = 4222;
+
+// TODO: Remove the HOST, PORT and DATA_COLLECTOR_HOST, DATA_COLLECTOR_PORT variables and their references
 input string HOST = "0.0.0.0";
 input ushort PORT = 9000; // int
 
 // Set host and Port - for outgoing
 input string DATA_COLLECTOR_HOST = "localhost";
 input int DATA_COLLECTOR_PORT = 9090;
-
-input string NATS_HOST = "demo.nats.io";
-input int NATS_PORT = 4222;
-
-// Global variables
 
 // Timer interval in milliseconds
 int timerInterval = 1 * 1000;
@@ -90,7 +91,7 @@ void OnInit()
   EventSetMillisecondTimer(timerInterval);
 
   // Establish socket connection
-  Client = NAtsConnectSocket(NATS_HOST, NATS_PORT);
+  Client = NatsConnectSocket(NATS_HOST, NATS_PORT);
   if (Client.socket == INVALID_HANDLE)
   {
     Print("Failed to establish socket connection to NATS server");
@@ -99,7 +100,7 @@ void OnInit()
   }
 
   // Print(Client);
-  // Handshake connection
+    // connected?
   if (Client.state.connect)
   {
     Print("Connected to NATS server");
@@ -118,7 +119,7 @@ void OnDeinit(const int reason)
   EventKillTimer();
 
   // Close the server socket
-  NAtsCloseSocket(Client);
+  NatsCloseSocket(Client);
   Print("Socket connection closed");
 
   // EventKillTimer();
@@ -139,13 +140,16 @@ void OnTick(string symbol)
 //+------------------------------------------------------------------+
 void OnTimer()
 {
-  Print("Connection State: ", Client.state.connect);
-  Print("Connection Pings: ", Client.state.pingCount);
-
   // perform handshake
-  if (PerformHandshake(Client) && Client.state.pingCount > 0) {
+  if (PerformHandshakeConnection(Client) && NatsConnectionKeepAlive(Client)) {
      // Subscribe to a symbol => NatsSubscribe(Client, "EURUSD", "M1");
-      NatsSubscribe(Client, "foo.*", "90");
+      // NatsSubscribe(Client, "foo.*", "90", );
+      // Call the NatsSubscribe function
+      string subject = "foo.*";
+      string sid = "90";
+      // SubscriptionCallback callback = OnNatsMessage;
+
+      NatsSubscribe(Client, subject, sid);
 
       // Publish to a symbol
       NatsPublish(Client, "foo.bar", "Hello");

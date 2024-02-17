@@ -35,6 +35,7 @@ git clone <repo>
 - Remove the chart event handler dependency => OnTickSymbol
 - Implement a parser for parsing commands
 - Implement a subscription manager (keep track of subscriptions)
+- Remove the HOST, PORT and DATA_COLLECTOR_HOST, DATA_COLLECTOR_PORT variables and their references
 
 ## References
 
