@@ -34,8 +34,8 @@ Think of it like a special tool that lets your programs talk to MetaTrader. This
 
 1. Open MetaTrader 5.
 2. Go to "Experts" > "Expert Advisors".
-3. Find the file called "mt-server.ex4" in the downloaded files.
-4. Drag and drop "mt-server.ex4" onto any chart in MetaTrader.
+3. Find the file called "mt-server.ex5" or "mt-server" in the downloaded files.
+4. Drag and drop "mt-server.ex5" or "mt-server" onto any chart in MetaTrader.
 5. The server is now running!
 
 There are two ways to connect:
@@ -47,7 +47,7 @@ There are two ways to connect:
 3. Type `pip install -r requirements.txt` and press Enter. This installs the needed libraries.
 4. Type `python example.py` and press Enter. This runs a program that connects to the API.
 
-<!-- **B. Manually (for advanced users):** -->
+**B. Manually (for advanced users)**
 
 **Step 4: Send requests (optional)**
 
@@ -58,5 +58,3 @@ The example program shows how to send requests to the server (the program you ra
 - This guide is for MetaTrader 5 only, MetaTrader 4 is not supported.
 - This is a basic guide, and the downloaded files may have additional features not covered here.
 - For more advanced usage, refer to the project's documentation on GitHub.
-
-Remember, if you're new to the Metatrader ecosystem, start slow and explore the possibilities one step at a time. Good luck on your journey!
