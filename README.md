@@ -63,3 +63,5 @@ The example program shows how to send requests to the server (the program you ra
 
 - cannot load custom indicator 'mtTools/ChartSpyControlpanelMCM':
   recompile ChartSpyControlpanelMCM in "MQL5" > "Indicators" > "mtTools"
+- Cannot see symbol or symbol not found:
+  try it with a deriv synthetic market account (support for others coming soon)
