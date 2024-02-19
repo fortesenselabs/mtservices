@@ -63,7 +63,7 @@ The example program shows how to send requests to the server (the program you ra
 - This is a basic guide, and the downloaded files may have additional features not covered here.
 - For more advanced usage, refer to the project's documentation on GitHub.
 
-**Errors:**
+**Known Errors:**
 
 - cannot load custom indicator 'mtTools/ChartSpyControlpanelMCM':
   recompile ChartSpyControlpanelMCM in "MQL5" > "Indicators" > "mtTools"
