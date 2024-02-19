@@ -21,9 +21,9 @@
 #define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index"
 #define CHART_EVENT_SYMBOL CHARTEVENT_ALL
 
-#include <wiseFinanceMT/formats/Json.mqh>
-#include <wiseFinanceMT/OnTickSymbol.mqh>
-#include <wiseFinanceMT/Utils.mqh>
+#include <mtTools/formats/Json.mqh>
+#include <mtTools/OnTickSymbol.mqh>
+#include <mtTools/Utils.mqh>
 
 // Sockets
 int liveSocket;

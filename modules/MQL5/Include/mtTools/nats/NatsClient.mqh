@@ -13,10 +13,10 @@
 #define DEFAULT_SOCKET_MESSAGE_LEN 1024
 #define MAX_SUBSCRIPTIONS 10
 
-#include <wiseFinanceMT/Json.mqh>
-#include <wiseFinanceMT/OnTickSymbol.mqh>
-#include <wisefinanceMT/SocketClient.mqh>
-#include <wiseFinanceMT/Utils.mqh>
+#include <mtTools/Json.mqh>
+#include <mtTools/OnTickSymbol.mqh>
+#include <mtTools/SocketClient.mqh>
+#include <mtTools/Utils.mqh>
 // #include <Mql/Collection/HashMap.mqh>
 
 

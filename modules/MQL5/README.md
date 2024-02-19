@@ -1,15 +1,6 @@
-# MetaTrader 5 Client
+# MetaTrader 5 Sever
 
-This is a metatrader 5 sockets client
-
-## How to run
-
-```bash
-git clone <repo>
-```
-
-- Copy contents of the server/MT5 folder to your <metatrader_5_folder>/MQL5
-- Drag and drop the compiled EA in your Metatrader client
+This is the MetaTrader 5 sockets server
 
 ## Commands
 
@@ -19,8 +10,14 @@ git clone <repo>
 - TRADE: TradingRequest [done]
 - POSITIONS: GetPositions [done]
 - ORDERS: GetOrders [done]
+- TICK: GetTicks [done]
 
-## References
+# Protocol
 
-- https://github.com/ejtraderLabs/ejtraderMT
-- https://github.com/JafferWilson/MT4-Ticks-To-MT5
+- plain text (mostly for receiving requests)
+- json (mostly for sending responses back to the client)
+
+## Notes
+
+- This is not for high frequency trading
+- server might take some time to process some data collection requests e.g if the requested historical tick data is more then 12 hours

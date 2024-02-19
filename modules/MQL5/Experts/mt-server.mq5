@@ -21,17 +21,17 @@
 #include <Trade/Trade.mqh>
 #include <StringToEnumInt.mqh>
 
-// Load wiseFinanceMT includes
+// Load mtTools includes
 // Required:
 
-#include <wiseFinanceMT/ControlErrors.mqh>
-#include <wisefinanceMT/sockets/SocketServer.mqh>
-// #include <wisefinanceMT/sockets/SocketClient.mqh>
-#include <wisefinanceMT/RequestHandlers.mqh>
-#include <wiseFinanceMT/formats/Json.mqh>
-#include <wiseFinanceMT/OnTickSymbol.mqh>
-#include <wiseFinanceMT/Calendar.mqh>
-#include <wiseFinanceMT/Utils.mqh>
+#include <mtTools/ControlErrors.mqh>
+#include <mtTools/sockets/SocketServer.mqh>
+// #include <mtTools/sockets/SocketClient.mqh>
+#include <mtTools/RequestHandlers.mqh>
+#include <mtTools/formats/Json.mqh>
+#include <mtTools/OnTickSymbol.mqh>
+#include <mtTools/Calendar.mqh>
+#include <mtTools/Utils.mqh>
 
 // Set host and Port
 input string HOST = "0.0.0.0";
