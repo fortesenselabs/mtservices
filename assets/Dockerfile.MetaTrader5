@@ -23,17 +23,17 @@ RUN apt-get update -y && \
 #     rm -rf /var/lib/apt/lists
 
 COPY --from=novnc-build /bin/easy-novnc /usr/local/bin/
-COPY assets/MT5/menu.xml /etc/xdg/openbox/
-COPY assets/MT5/supervisord.conf /etc/
+COPY MT5/menu.xml /etc/xdg/openbox/
+COPY MT5/supervisord.conf /etc/
 
 # set wine C drive directory
 ENV DRIVE_C=/wine/drive_c
 WORKDIR ${DRIVE_C}
 
 # Copy Metatrader5 folder inside wine and install required packages
-COPY assets/MT5/Metatrader5 ${DRIVE_C}/Metatrader5
+COPY MT5/Metatrader5 ${DRIVE_C}/Metatrader5
 # RUN pip install pandas MetaTrader5
-COPY assets/MT5/metatrader.desktop /usr/share/applications/
+COPY MT5/metatrader.desktop /usr/share/applications/
 
 # Install wine-python-pip
 RUN wget https://bootstrap.pypa.io/get-pip.py -O ${DRIVE_C}/Python37/Scripts/get-pip.py && \
