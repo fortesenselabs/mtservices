@@ -15,7 +15,21 @@
 
 ## 3:
 
-Add database storage support
+- Persistent history Data on SQL-based databases such as MySQL, and SQLite
+- Historical data collection using Multithreading in python and go concurrency support
+- Read from Database
+
+## 4:
+
+- test Modify order (client)
+- test Modify position (client)
+- test Stop Orders (client)
+- test Limit Orders (client)
+
+## Others
+
+- Add and test event live stream
+- Remove the chart event handler dependency => OnTickSymbol
 
 ## Resources and Other talks
 
