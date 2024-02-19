@@ -53,6 +53,10 @@ There are two ways to connect:
 
 The example program shows how to send requests to the server (the program you ran in step 3). This lets you control things like getting data or placing orders.
 
+**Known Clients:**
+1. [Python](https://github.com/FortesenseLabs/metatrader-py)
+2. [Go](https://github.com/FortesenseLabs/go-metatrader)
+   
 **Important notes:**
 
 - This guide is for MetaTrader 5 only, MetaTrader 4 is not supported.
