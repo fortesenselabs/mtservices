@@ -27,8 +27,8 @@ Think of it like a special tool that lets your programs talk to MetaTrader. This
 1. Open MetaTrader 5.
 2. Go to "File" > "Open Data Folder". This shows where MetaTrader stores your files.
 3. Inside the data folder, find the "MQL5" folder.
-4. Open the "MQL5" folder, then create a new folder inside called "services".
-5. Copy all the files you downloaded earlier from the "services/MQL5" folder into the new folder you just created.
+4. Open the "MQL5" folder.
+5. Copy all the folders and files you downloaded earlier from the "services/MQL5" folder into the "MQL5" folder you opened previously.
 
 **Step 3: Connect to the server**
 
