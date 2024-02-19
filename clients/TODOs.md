@@ -1,6 +1,10 @@
 # TODO
 
-## 1
+## 0:
+
+Add logging support
+
+## 1:
 
 - Check if the difference is more than 5 years (5 _ 365 _ 24 _ 60 _ 60 seconds):
   12hrs => 12 _ 60 _ 60
