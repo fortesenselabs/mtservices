@@ -58,3 +58,8 @@ The example program shows how to send requests to the server (the program you ra
 - This guide is for MetaTrader 5 only, MetaTrader 4 is not supported.
 - This is a basic guide, and the downloaded files may have additional features not covered here.
 - For more advanced usage, refer to the project's documentation on GitHub.
+
+**Errors:**
+
+- cannot load custom indicator 'mtTools/ChartSpyControlpanelMCM':
+  recompile ChartSpyControlpanelMCM in "MQL5" > "Indicators" > "mtTools"
