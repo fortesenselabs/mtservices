@@ -1,0 +1,3 @@
+pandas
+pytz
+git+https://github.com/FortesenseLabs/metatrader-py.git
