@@ -1,4 +1,4 @@
-## MetaTrader API Interface
+## MetaTrader API Interface (Server)
 
 This program(s) helps you connect to the MetaTrader desktop application programmatically, even if you're new to MQL programming.
 
@@ -44,9 +44,8 @@ There are two ways to connect:
 **A. Using another program:**
 
 1. Open a terminal window (search for "Terminal" or "Command Prompt" on your computer).
-2. Change directory to the "clients/metatrader-py" folder inside the downloaded files.
-3. Type `pip install -r requirements.txt` and press Enter. This installs the needed libraries.
-4. Type `python example.py` and press Enter. This runs a program that connects to the API.
+2. Type `pip install -r requirements.txt` and press Enter. This installs the needed libraries.
+3. Type `python client_example.py` and press Enter. This runs a program that connects to the API.
 
 **B. Manually (for advanced users)**
 
