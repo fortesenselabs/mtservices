@@ -1,188 +1,62 @@
-# Wise Finance MetaTrader Interface
+## MetaTrader API Interface
 
-MetaTrader application interface
+This program(s) helps you connect to the MetaTrader desktop application programmatically, even if you're new to MQL programming.
 
-## Execution
+**What is this API?**
 
-**For MT5:**
+Think of it like a special tool that lets your programs talk to MetaTrader. This means you can build apps that:
 
-```bash
-cd MT5
-make run
+- Get live market data
+- Send trade orders
+- Analyze your trading performance
 
-```
+**What do I need?**
 
-**For MT4:**
+- **MetaTrader 5:** Make sure you have this trading platform installed on your computer.
+- **Basic computer skills:** You'll need to copy and paste files, and run simple commands in your terminal.
 
-```bash
-cd MT4
-make run
+**Step 1: Download the files**
 
-```
+1. Click the link below to download the necessary files:
+   [https://github.com/FortesenseLabs/wisefinance-mtservices.git](https://github.com/FortesenseLabs/wisefinance-mtservices.git)
 
-Goto http://localhost:8080/
+2. Extract the downloaded file (usually by right-clicking and choosing "Extract").
 
-## Note
+**Step 2: Set up MetaTrader**
 
-- MT4 is not fully supported yet
+1. Open MetaTrader 5.
+2. Go to "File" > "Open Data Folder". This shows where MetaTrader stores your files.
+3. Inside the data folder, find the "MQL5" folder.
+4. Open the "MQL5" folder, then create a new folder inside called "services".
+5. Copy all the files you downloaded earlier from the "services/MQL5" folder into the new folder you just created.
 
-## Docs
+**Step 3: Connect to the server**
 
-gh release create v0.1.0 --title "v0.1.0 (beta)" --notes "this is a beta release" --prerelease
+1. Open MetaTrader 5.
+2. Go to "Experts" > "Expert Advisors".
+3. Find the file called "mt-server.ex4" in the downloaded files.
+4. Drag and drop "mt-server.ex4" onto any chart in MetaTrader.
+5. The server is now running!
 
-docker run --rm -d -p 8080:8080 --name metatrader -v metatrader:/data metatrader:5
+There are two ways to connect:
 
-```sql
-    DROP DATABASE IF EXISTS wisefinance_db;
-```
+**A. Using another program:**
 
-### Start and Use MindsDB
+1. Open a terminal window (search for "Terminal" or "Command Prompt" on your computer).
+2. Change directory to the "clients/metatrader-py" folder inside the downloaded files.
+3. Type `pip install -r requirements.txt` and press Enter. This installs the needed libraries.
+4. Type `python example.py` and press Enter. This runs a program that connects to the API.
 
-Run the command below to start MindsDB in Docker.
+<!-- **B. Manually (for advanced users):** -->
 
-```bash
-   docker run -p 47334:47334 -p 47335:47335 mindsdb/mindsdb
-```
+**Step 4: Send requests (optional)**
 
-If you wish to simply spin up the container without the logs, run the following command:
+The example program shows how to send requests to the server (the program you ran in step 3). This lets you control things like getting data or placing orders.
 
-```bash
-   docker run -d -p 47334:47334 -p 47335:47335 mindsdb/mindsdb
-```
+**Important notes:**
 
-With access to the MySQL located in the host machine
+- This guide is for MetaTrader 5 only, MetaTrader 4 is not supported.
+- This is a basic guide, and the downloaded files may have additional features not covered here.
+- For more advanced usage, refer to the project's documentation on GitHub.
 
-```bash
-   docker run --network="host" -p 47334:47334 -p 47335:47335 -v ./mdb_data:/root/mdb_storage mindsdb/mindsdb
-```
-
-https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
-https://dev.to/narayanadithya/using-mindsdb-for-time-series-forecasting-honey-production-in-the-usa-4p05
-https://aicoding.substack.com/p/mindsdb-time-series
-https://github.com/AlainDaccache/Quantropy
-https://github.com/meppps/ML-Financial-Analysis-WebApp
-https://github.com/philipperemy/FX-1-Minute-Data
-https://github.com/constverum/Quantdom
-https://github.com/ashishpapanai/stockDL
-https://github.com/karthic2510/anomaly-detection
-
-**Some commands in mindsdb:**
-
-```sql
--- Connection success
---- You can list all the linked databases using the command below:
--- SHOW DATABASES;
--- SHOW TABLES FROM wisefinance;
--- SELECT * FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices LIMIT 10;
--- SELECT COUNT(*) FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices;
-
--- Create and Train the Model
--- CREATE PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_M30
--- FROM wisefinance
---     (SELECT * FROM MetaTrader_volatility_75_index_M30_historic_prices)
--- PREDICT is_close_diff_gt_threshold
--- ORDER BY datetime
--- WINDOW 25
--- HORIZON 2
-
--- [A New Set of WINDOWs and Horizons]
--- WINDOW 12
--- HORIZON 1
-
-
--- Check if the Model has finished training
-SELECT * FROM predictors;
-
--- Time To Forecast
-
--- [COPY 1]
--- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE
--- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table
--- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table
--- WHERE orig_table.datetime > LATEST
--- ORDER BY orig_table.ds DESC
--- LIMIT 10;
-
--- [COPY 2] [Recommended]
--- SELECT m.datetime AS DateTime, m.close AS PredictedClosePrice
--- FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
--- JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
--- WHERE t.datetime > LATEST;
-
--- [COPY 3]
--- SELECT t.datetime, t.open, t.high, t.low, t.tick_volume, t.close AS actual_close_price,
---        m.close AS predicted_close_price
--- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
--- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
--- WHERE t.datetime > LATEST
--- LIMIT 4;
-
-
--- DELETE MODEL
--- DROP PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_m30;
-```
-
-**New:**
-
-```sql
-   -- Connection success
---- You can list all the linked databases using the command below:
--- SHOW DATABASES;
--- SHOW TABLES FROM wisefinance;
--- SELECT * FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices LIMIT 10;
--- SELECT COUNT(*) FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices;
-
--- Create and Train the Model
--- CREATE PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_M30
--- FROM wisefinance
---     (SELECT datetime, open, high, low, close, rsi_ta, close_diff, rise_above_threshold, fall_below_threshold FROM MetaTrader_volatility_75_index_M30_historic_prices)
--- PREDICT close
--- -- ORDER BY datetime
--- WINDOW 25
--- HORIZON 2
-
--- [A New Set of WINDOWs and HORIZONs]
--- PREDICT is_close_diff_gt_threshold
--- WINDOW 12 (20, 25)
--- HORIZON 1
-
-
--- Check if the Model has finished training
--- SELECT * FROM predictors;
-
--- Time To Forecast
-
--- [COPY 1]
--- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE
--- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table
--- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table
--- WHERE orig_table.datetime > LATEST
--- ORDER BY orig_table.ds DESC
--- LIMIT 10;
-
--- [COPY 2] [Recommended]
-SELECT m.datetime AS DateTime, m.close AS Forecast
-FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
-JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
-WHERE t.datetime > LATEST;
-
--- m.is_close_diff_gt_threshold
-
--- [COPY 3]
--- SELECT t.datetime, t.open, t.high, t.low, t.tick_volume, t.close AS actual_close_price,
---        m.close AS predicted_close_price
--- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
--- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
--- WHERE t.datetime > LATEST
--- LIMIT 4;
-
-
--- DELETE MODEL
--- DROP PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_m30;
-```
-
-**Notes:**
-
-```txt
-
-```
+Remember, if you're new to the Metatrader ecosystem, start slow and explore the possibilities one step at a time. Good luck on your journey!
