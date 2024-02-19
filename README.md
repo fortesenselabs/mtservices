@@ -1,6 +1,6 @@
-# Wise Finance Metatrader Interface
+# Wise Finance MetaTrader Interface
 
-Metatrader application interface
+MetaTrader application interface
 
 ## Execution
 
@@ -26,37 +26,6 @@ Goto http://localhost:8080/
 
 - MT4 is not fully supported yet
 
-## Resources
-
-- https://github.com/JafferWilson/MT4-Ticks-To-MT5/ (*) - socket server, also uses ws2_32.dll (https://learn.microsoft.com/en-us/windows/win32/winsock/winsock-functions)
-- https://github.com/TheSnowGuru/PyTrader-python-mt4-mt5-trading-api-connector-drag-n-drop/ (*) - ws2_32.dll
-- https://github.com/mikha-dev/mt5-rest (*)
-- https://github.com/mikha-dev/mt4-websockets-server (*)
-- https://github.com/elugovoy/MQLMySQL-Project (*)
-- https://www.mql5.com/en/articles/12042 (*)
-- https://github.com/ConSol/docker-headless-vnc-container
-- https://github.com/novnc/noVNC#quick-start
-- https://hub.docker.com/r/fredblgr/ubuntu-novnc
-- https://askubuntu.com/questions/229989/how-to-setup-x11vnc-to-access-with-graphical-login-screen
-- https://github.com/theasp/docker-novnc
-- https://hub.docker.com/r/engineervix/pyinstaller-windows
-- https://stackoverflow.com/questions/64173592/how-can-i-correctly-install-run-pip-in-a-wine-emulated-python-version-inside
-- https://hub.docker.com/r/x11docker/xfce-wine-playonlinux
-- https://github.com/mviereck/x11docker#installation-from-distribution-repositories
-- https://github.com/fcwu/docker-ubuntu-vnc-desktop
-- https://github.com/hdavid0510/docker-ubuntu-lxde-novnc
-- https://hub.docker.com/r/dorowu/ubuntu-desktop-lxde-vnc
-- https://github.com/novnc/noVNC
-- https://github.com/TurboVNC/tightvnc
-- https://github.com/pgaskin/easy-novnc
-- https://faun.pub/how-to-push-docker-image-using-github-actions-694397c4f557
-- https://blog.derlin.ch/github-actions-reusable-workflow-docker-images
-- https://stackoverflow.com/questions/5480258/how-can-i-delete-a-remote-tag
-- https://medium.com/codex/run-your-docker-containers-for-free-in-the-cloud-and-for-unlimited-time-361515cb0876
-- https://www.analyticsvidhya.com/blog/2023/03/top-4-cloud-platforms-to-host-or-run-docker-containers-for-free/#Render
-- https://docs.snowflake.com/en/user-guide/intro-key-concepts
-- https://docs.mindsdb.com/setup/self-hosted/docker
-
 ## Docs
 
 gh release create v0.1.0 --title "v0.1.0 (beta)" --notes "this is a beta release" --prerelease
@@ -76,11 +45,13 @@ Run the command below to start MindsDB in Docker.
 ```
 
 If you wish to simply spin up the container without the logs, run the following command:
+
 ```bash
    docker run -d -p 47334:47334 -p 47335:47335 mindsdb/mindsdb
 ```
 
-With access to the MySQL located in the host machine 
+With access to the MySQL located in the host machine
+
 ```bash
    docker run --network="host" -p 47334:47334 -p 47335:47335 -v ./mdb_data:/root/mdb_storage mindsdb/mindsdb
 ```
@@ -96,6 +67,7 @@ https://github.com/ashishpapanai/stockDL
 https://github.com/karthic2510/anomaly-detection
 
 **Some commands in mindsdb:**
+
 ```sql
 -- Connection success
 --- You can list all the linked databases using the command below:
@@ -124,16 +96,16 @@ SELECT * FROM predictors;
 -- Time To Forecast
 
 -- [COPY 1]
--- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE 
--- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table 
--- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table 
+-- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE
+-- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table
+-- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table
 -- WHERE orig_table.datetime > LATEST
--- ORDER BY orig_table.ds DESC 
+-- ORDER BY orig_table.ds DESC
 -- LIMIT 10;
 
 -- [COPY 2] [Recommended]
 -- SELECT m.datetime AS DateTime, m.close AS PredictedClosePrice
--- FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m 
+-- FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
 -- JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
 -- WHERE t.datetime > LATEST;
 
@@ -151,6 +123,7 @@ SELECT * FROM predictors;
 ```
 
 **New:**
+
 ```sql
    -- Connection success
 --- You can list all the linked databases using the command below:
@@ -163,7 +136,7 @@ SELECT * FROM predictors;
 -- CREATE PREDICTOR mindsdb.wisefinance_predictor_volatility_75_index_M30
 -- FROM wisefinance
 --     (SELECT datetime, open, high, low, close, rsi_ta, close_diff, rise_above_threshold, fall_below_threshold FROM MetaTrader_volatility_75_index_M30_historic_prices)
--- PREDICT close  
+-- PREDICT close
 -- -- ORDER BY datetime
 -- WINDOW 25
 -- HORIZON 2
@@ -180,16 +153,16 @@ SELECT * FROM predictors;
 -- Time To Forecast
 
 -- [COPY 1]
--- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE 
--- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table 
--- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table 
+-- SELECT orig_table.datetime AS DATETIME, pred_table.close AS PREDICTED_CLOSE, orig_table.close AS ACTUAL_CLOSE
+-- FROM wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS orig_table
+-- JOIN mindsdb.wisefinance_predictor_volatility_75_index_m30 AS pred_table
 -- WHERE orig_table.datetime > LATEST
--- ORDER BY orig_table.ds DESC 
+-- ORDER BY orig_table.ds DESC
 -- LIMIT 10;
 
 -- [COPY 2] [Recommended]
 SELECT m.datetime AS DateTime, m.close AS Forecast
-FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m 
+FROM mindsdb.wisefinance_predictor_volatility_75_index_m30 AS m
 JOIN wisefinance.MetaTrader_volatility_75_index_M30_historic_prices AS t
 WHERE t.datetime > LATEST;
 
@@ -209,6 +182,7 @@ WHERE t.datetime > LATEST;
 ```
 
 **Notes:**
+
 ```txt
 
 ```
