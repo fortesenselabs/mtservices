@@ -28,3 +28,14 @@
 - https://www.analyticsvidhya.com/blog/2023/03/top-4-cloud-platforms-to-host-or-run-docker-containers-for-free/#Render
 - https://docs.snowflake.com/en/user-guide/intro-key-concepts
 - https://docs.mindsdb.com/setup/self-hosted/docker
+- https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach
+- https://dev.to/narayanadithya/using-mindsdb-for-time-series-forecasting-honey-production-in-the-usa-4p05
+- https://aicoding.substack.com/p/mindsdb-time-series
+- https://github.com/AlainDaccache/Quantropy
+- https://github.com/meppps/ML-Financial-Analysis-WebApp
+- https://github.com/philipperemy/FX-1-Minute-Data
+- https://github.com/constverum/Quantdom
+- https://github.com/ashishpapanai/stockDL
+- https://github.com/karthic2510/anomaly-detection
+- https://github.com/ejtraderLabs/ejtraderMT
+- https://github.com/JafferWilson/MT4-Ticks-To-MT5
