@@ -1,5 +1,5 @@
-from client import MetaTrader
-from constants import TIME_FRAMES, ACTION_TYPE
+from metatrader.client import MetaTrader
+from metatrader.constants import TIME_FRAMES, ACTION_TYPE
 
 if __name__ == "__main__":
     meta_trader = MetaTrader(authorization_code="123456")
