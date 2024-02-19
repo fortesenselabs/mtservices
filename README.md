@@ -2,13 +2,14 @@
 
 This program(s) helps you connect to the MetaTrader desktop application programmatically, even if you're new to MQL programming.
 
-**What is this API?**
+**What is this Program(s)?**
 
 Think of it like a special tool that lets your programs talk to MetaTrader. This means you can build apps that:
 
 - Get live market data
+- Get historical market data
+- Get historical trade data (can be used to analyze your trading performance)
 - Send trade orders
-- Analyze your trading performance
 
 **What do I need?**
 
