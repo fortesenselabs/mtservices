@@ -184,7 +184,7 @@ void SynchronizationTradingTools()
 //+------------------------------------------------------------------+
 bool LoadAgent(int __id__, string __symbol__)
 {
-  _handle_[__id__] = iCustom(__symbol__, _Period, "wiseFinanceMT/ChartSpyControlpanelMCM", ChartID(), 65534, CHART_EVENT_SYMBOL);
+  _handle_[__id__] = iCustom(__symbol__, _Period, "mtTools/ChartSpyControlpanelMCM", ChartID(), 65534, CHART_EVENT_SYMBOL);
   if (_handle_[__id__] == INVALID_HANDLE)
   {
     Print("Error in setting of agent for ", __symbol__);
