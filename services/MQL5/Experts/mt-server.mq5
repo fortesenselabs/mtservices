@@ -13,8 +13,8 @@
 #property version "0.10"
 #property description "Wise Finance Socket Server"
 // #define SYMBOLS_TRADING "EURUSD", "GBPUSD", "USDJPY", "USDCHF"
-#define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index" // get all symbols
-#define CHART_EVENT_SYMBOL CHARTEVENT_ALL
+// #define SYMBOLS_TRADING "Step Index", "Boom 1000 Index", "Volatility 100 Index", "Volatility 25 Index" // get all symbols
+// #define CHART_EVENT_SYMBOL CHARTEVENT_ALL
 
 #include <Trade/AccountInfo.mqh>
 #include <Trade/DealInfo.mqh>
@@ -29,7 +29,7 @@
 // #include <mtTools/sockets/SocketClient.mqh>
 #include <mtTools/RequestHandlers.mqh>
 #include <mtTools/formats/Json.mqh>
-#include <mtTools/OnTickSymbol.mqh>
+// #include <mtTools/OnTickSymbol.mqh>
 #include <mtTools/Calendar.mqh>
 #include <mtTools/Utils.mqh>
 
@@ -162,13 +162,23 @@ void OnDeinit(const int reason)
 //| Use this function instead of the standard OnTick() function      |
 //| OnTick handler                                                   |
 //+------------------------------------------------------------------+
-void OnTick(string symbol)
-{
-  // if (!liveStream || IsStopped())
-  //   return;
+// void OnTick(string symbol)
+// {
+//   // if (!liveStream || IsStopped())
+//   //   return;
 
-  // // Send tick data
-  // SendTickData(symbol);
+//   // // Send tick data
+//   // SendTickData(symbol);
+// }
+
+//+------------------------------------------------------------------+
+//| Expert tick function                                             |
+//| Use this function instead of the multi OnTick() function         |
+//| OnTick handler                                                   |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+  //
 }
 
 //+------------------------------------------------------------------+
@@ -234,19 +244,19 @@ void OnTimer()
 //| ChartEvent function                                              |
 //| This function must be declared, even if it empty.                |
 //+------------------------------------------------------------------+
-void OnChartEvent(const int id, // event id
+// void OnChartEvent(const int id, // event id
 
-                  const long &lparam, // event param of long type
+//                   const long &lparam, // event param of long type
 
-                  const double &dparam, // event param of double type
+//                   const double &dparam, // event param of double type
 
-                  const string &sparam) // event param of string type
+//                   const string &sparam) // event param of string type
 
-{
+// {
 
-  //--- Add code here...
-  Print("OnChartEvent id: ", id);
-  // Print("OnChartEvent lparam: ", lparam);
-  // Print("OnChartEvent dparam: ", dparam);
-  // Print("OnChartEvent sparam: ", sparam);
-}
+//   //--- Add code here...
+//   Print("OnChartEvent id: ", id);
+//   // Print("OnChartEvent lparam: ", lparam);
+//   // Print("OnChartEvent dparam: ", dparam);
+//   // Print("OnChartEvent sparam: ", sparam);
+// }
