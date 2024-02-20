@@ -1,4 +1,4 @@
-# MetaTrader 5 Sever
+# MetaTrader 5 Server
 
 This is the MetaTrader 5 sockets server
 
