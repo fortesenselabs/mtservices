@@ -18,7 +18,7 @@ Think of it like a special tool that lets your programs talk to MetaTrader. This
 
 **Step 1: Download the files**
 
-1. Click the link below to download the necessary files:
+1. Click the link below to download the necessary files(you can clone the repo or download as zip):
    [https://github.com/FortesenseLabs/wisefinance-mtservices.git](https://github.com/FortesenseLabs/wisefinance-mtservices.git)
 
 2. Extract the downloaded file (usually by right-clicking and choosing "Extract").
@@ -29,7 +29,7 @@ Think of it like a special tool that lets your programs talk to MetaTrader. This
 2. Go to "File" > "Open Data Folder". This shows where MetaTrader stores your files.
 3. Inside the data folder, find the "MQL5" folder.
 4. Open the "MQL5" folder.
-5. Copy all the folders and files you downloaded earlier from the "services/MQL5" folder into the "MQL5" folder you opened previously.
+5. Copy all the folders and files you downloaded earlier(step 1) from the "services/MQL5" folder into the "MQL5" folder you opened previously.
 
 **Step 3: Connect to the server**
 
@@ -54,9 +54,10 @@ There are two ways to connect:
 The example program shows how to send requests to the server (the program you ran in step 3). This lets you control things like getting data or placing orders.
 
 **Known Clients:**
+
 1. [Python](https://github.com/FortesenseLabs/metatrader-py)
 2. [Go](https://github.com/FortesenseLabs/go-metatrader)
-   
+
 **Important notes:**
 
 - This guide is for MetaTrader 5 only, MetaTrader 4 is not supported.
