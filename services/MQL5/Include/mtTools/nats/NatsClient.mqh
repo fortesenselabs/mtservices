@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                         WiseFinanceNatsClient    |
 //|                                 Copyright 2023, Fortesense Labs. |
-//|                                      https://www.wisefinance.com |
+//|                                      https://www.github.com/FortesenseLabs |
 //+------------------------------------------------------------------+
 
 #property copyright "Copyright 2023, Fortesense Labs."
-#property link "https://www.wisefinance.com"
+#property link "https://www.github.com/FortesenseLabs"
 #property version "0.10"
 #property description "Wise Finance NATS.io Client"
 

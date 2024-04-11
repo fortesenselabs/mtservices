@@ -1,7 +1,8 @@
+//### <Include/mtTools/mt-server.mqh>
 //+------------------------------------------------------------------+
 //|                 WiseFinanceSocketServer                           |
 //|              Copyright 2023, Fortesense Labs.                     |
-//|              https://www.wisefinance.com                           |
+//|              https://www.github.com/FortesenseLabs                           |
 //+------------------------------------------------------------------+
 // Reference:
 // - https://github.com/ejtraderLabs/Metatrader5-Docker
@@ -9,7 +10,7 @@
 // - ejTrader
 
 #property copyright "Copyright 2023, Fortesense Labs."
-#property link "https://www.wisefinance.com"
+#property link "https://www.github.com/FortesenseLabs"
 #property version "0.10"
 #property description "Wise Finance Socket Server"
 // #define SYMBOLS_TRADING "EURUSD", "GBPUSD", "USDJPY", "USDCHF"
@@ -30,7 +31,7 @@
 #include <mtTools/RequestHandlers.mqh>
 #include <mtTools/formats/Json.mqh>
 // #include <mtTools/OnTickSymbol.mqh>
-#include <mtTools/Calendar.mqh>
+// #include <mtTools/Calendar.mqh>
 #include <mtTools/Utils.mqh>
 
 // Set host and Port
